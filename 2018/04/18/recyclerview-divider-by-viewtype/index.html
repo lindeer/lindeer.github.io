@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>RecyclerView区分视图类型的Divider | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RecyclerView区分视图类型的Divider">
+<meta property="og:url" content="http://www.lindeer.net/2018/04/18/recyclerview-divider-by-viewtype/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件">
+<meta property="og:locale">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19161-46137967b9675b24.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2018-04-18T08:41:11.000Z">
+<meta property="article:modified_time" content="2021-05-11T03:10:03.191Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/19161-46137967b9675b24.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-recyclerview-divider-by-viewtype" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      RecyclerView区分视图类型的Divider
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2018-04-18T08:41:11.000Z" itemprop="datePublished">Apr 18 2018</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">View</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;0.5dp&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:background</span>=<span class="string">&quot;@color/colorGrayLight&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>但如果添加这样一个界面元素导致新增一层布局那感觉代价有点大。另外一种情况，如果当前这个视图由于某种原因存在padding，而期望的分隔线是穿透整个布局的，那添加bottomLine的做法也是行不通的；还有一种情况同一类型布局在一个页面有分隔线，在另一个页面没有分隔线；总之就是希望分隔线和视图内容无关。所以我们需要一种类似DividerItemDecoration的decoration，它能针对某些viewType起作用。</p>
+<p>先要了解一下RecyclerView.ItemDecoration，它有2个重要的回调方法：<code>onDrawOver</code>和<code>getItemOffsets</code>。onDrawOver其实是一种应用多个item的方法，所以无论如何都需要一个遍历操作。需要理解的是getItemOffsets中outRect这个输出型参数，虽然是一个Rect类型，但并不表示任何范围，而只是一个item四周的间隔距离:<br><img src="https://upload-images.jianshu.io/upload_images/19161-46137967b9675b24.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="outRect参数各域的含义"></p>
+<p>我们思路已经很清楚了: 在getItemOffsets中判断当前view的类型(parent.getChildViewHolder(view)), 如果是我们需要的类型设置对应的bottom；在onDrawOver中我们遍历recyclerView的child，同样如果是我们需要的类型将分隔线画在对应位置上就行了；这个decoration可以针对任意一种或者几种类型设置不种的drawable，我们当前用SparseArray存储，key就是视图的viewType<br><code>private final SparseArrayCompat&lt;Drawable&gt; mDividers = new SparseArrayCompat&lt;&gt;(2);</code><br>同时我们可以设置这个item的高度，当Drawable为null时相当于一个透明的间隙，不为null时具有强制指定的高度。<br>同样我们还要考虑方向：layoutManager为横向和竖向的情况，无它，只是画的位置不同而已。<br>话不多说了，上代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.graphics.drawable.Drawable;</span><br><span class="line"><span class="keyword">import</span> android.support.annotation.Nullable;</span><br><span class="line"><span class="keyword">import</span> android.support.v7.widget.RecyclerView;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ViewTypeDivider</span> <span class="keyword">extends</span> <span class="title">ItemHolderDivider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">keyFrom</span><span class="params">(RecyclerView.ViewHolder holder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> holder.getItemViewType();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ViewTypeDivider <span class="title">put</span><span class="params">(<span class="keyword">int</span> viewType, Drawable drawable)</span> </span>&#123;</span><br><span class="line">        putDrawable(viewType, drawable);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ViewTypeDivider <span class="title">put</span><span class="params">(<span class="keyword">int</span> viewType, <span class="meta">@Nullable</span> Drawable drawable, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">        putHeight(viewType, drawable, height);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.graphics.Canvas;</span><br><span class="line"><span class="keyword">import</span> android.graphics.Rect;</span><br><span class="line"><span class="keyword">import</span> android.graphics.drawable.Drawable;</span><br><span class="line"><span class="keyword">import</span> android.support.annotation.Nullable;</span><br><span class="line"><span class="keyword">import</span> android.support.v4.util.SparseArrayCompat;</span><br><span class="line"><span class="keyword">import</span> android.support.v7.widget.LinearLayoutManager;</span><br><span class="line"><span class="keyword">import</span> android.support.v7.widget.RecyclerView;</span><br><span class="line"><span class="keyword">import</span> android.view.View;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ItemHolderDivider</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">ItemDecoration</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SparseArrayCompat&lt;Drawable&gt; mDividers = <span class="keyword">new</span> SparseArrayCompat&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SparseArrayCompat&lt;Integer&gt; mHeights = <span class="keyword">new</span> SparseArrayCompat&lt;&gt;(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">int</span> <span class="title">keyFrom</span><span class="params">(RecyclerView.ViewHolder holder)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDrawOver</span><span class="params">(Canvas c, RecyclerView parent, RecyclerView.State state)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> childCount = parent.getChildCount();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> width = parent.getWidth();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> height = parent.getHeight();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> childViewIndex = <span class="number">0</span>; childViewIndex &lt; childCount; childViewIndex++) &#123;</span><br><span class="line">            <span class="keyword">final</span> View view = parent.getChildAt(childViewIndex);</span><br><span class="line">            RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);</span><br><span class="line">            <span class="keyword">int</span> key = keyFrom(holder);</span><br><span class="line">            <span class="keyword">if</span> (isVertical(parent)) &#123;</span><br><span class="line">                drawBottom(c, key, (<span class="keyword">int</span>) view.getY() + view.getHeight(), width);</span><br><span class="line">                drawTop(c, -key, (<span class="keyword">int</span>) view.getY(), width);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                drawRight(c, key, (<span class="keyword">int</span>) view.getX() + view.getWidth(), height);</span><br><span class="line">                drawLeft(c, -key, (<span class="keyword">int</span>) view.getX(), height);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getItemOffsets</span><span class="params">(Rect outRect, View view, RecyclerView parent,</span></span></span><br><span class="line"><span class="params"><span class="function">                               RecyclerView.State state)</span> </span>&#123;</span><br><span class="line">        RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);</span><br><span class="line">        <span class="keyword">int</span> key = keyFrom(holder);</span><br><span class="line">        <span class="keyword">if</span> (isVertical(parent)) &#123;</span><br><span class="line">            outRect.bottom = getHeight(key);</span><br><span class="line">            outRect.top = getHeight(-key);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            outRect.right = getHeight(key);</span><br><span class="line">            outRect.left = getHeight(-key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawBottom</span><span class="params">(Canvas c, <span class="keyword">int</span> key, <span class="keyword">int</span> y, <span class="keyword">int</span> width)</span> </span>&#123;</span><br><span class="line">        Drawable d = mDividers.get(key);</span><br><span class="line">        <span class="keyword">if</span> (d != <span class="keyword">null</span>) &#123;</span><br><span class="line">            d.setBounds(<span class="number">0</span>, y, width, y + getHeight(key, d));</span><br><span class="line">            d.draw(c);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawTop</span><span class="params">(Canvas c, <span class="keyword">int</span> key, <span class="keyword">int</span> y, <span class="keyword">int</span> width)</span> </span>&#123;</span><br><span class="line">        Drawable d = mDividers.get(key);</span><br><span class="line">        <span class="keyword">if</span> (d != <span class="keyword">null</span>) &#123;</span><br><span class="line">            d.setBounds(<span class="number">0</span>, y - getHeight(key, d), width, y);</span><br><span class="line">            d.draw(c);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawRight</span><span class="params">(Canvas c, <span class="keyword">int</span> key, <span class="keyword">int</span> x, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">        Drawable d = mDividers.get(key);</span><br><span class="line">        <span class="keyword">if</span> (d != <span class="keyword">null</span>) &#123;</span><br><span class="line">            d.setBounds(x, <span class="number">0</span>, x + getHeight(key, d), height);</span><br><span class="line">            d.draw(c);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawLeft</span><span class="params">(Canvas c, <span class="keyword">int</span> key, <span class="keyword">int</span> x, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">        Drawable d = mDividers.get(key);</span><br><span class="line">        <span class="keyword">if</span> (d != <span class="keyword">null</span>) &#123;</span><br><span class="line">            d.setBounds(x - getHeight(key, d), <span class="number">0</span>, x, height);</span><br><span class="line">            d.draw(c);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">putDrawable</span><span class="params">(<span class="keyword">int</span> key, Drawable drawable)</span> </span>&#123;</span><br><span class="line">        mDividers.put(key, drawable);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">putHeight</span><span class="params">(<span class="keyword">int</span> key, <span class="meta">@Nullable</span> Drawable drawable, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (drawable != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mDividers.put(key, drawable);</span><br><span class="line">        &#125;</span><br><span class="line">        mHeights.put(key, height);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getHeight</span><span class="params">(<span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">        Drawable d = mDividers.get(key);</span><br><span class="line">        <span class="keyword">return</span> getHeight(key, d);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getHeight</span><span class="params">(<span class="keyword">int</span> key, <span class="meta">@Nullable</span> Drawable d)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> index = mHeights.indexOfKey(key);</span><br><span class="line">        <span class="keyword">return</span> index &lt; <span class="number">0</span> ? d == <span class="keyword">null</span> ? <span class="number">0</span> : d.getIntrinsicHeight() : mHeights.valueAt(index);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isVertical</span><span class="params">(RecyclerView parent)</span> </span>&#123;</span><br><span class="line">        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();</span><br><span class="line">        <span class="keyword">return</span> !(layoutManager <span class="keyword">instanceof</span> LinearLayoutManager) ||</span><br><span class="line">                ((LinearLayoutManager) layoutManager).getOrientation() == LinearLayoutManager.VERTICAL;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2018/04/28/android-text-width-trap/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android计算文本宽度的坑
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          只包裹文本的BackgroundColorSpan
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

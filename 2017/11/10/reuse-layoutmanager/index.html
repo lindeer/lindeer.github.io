@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>重用LayoutManager | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="重用LayoutManager">
+<meta property="og:url" content="http://www.lindeer.net/2017/11/10/reuse-layoutmanager/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-11-10T11:32:23.000Z">
+<meta property="article:modified_time" content="2021-05-11T03:07:04.799Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-reuse-layoutmanager" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      重用LayoutManager
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-11-10T11:32:23.000Z" itemprop="datePublished">Nov 10 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.IllegalArgumentException: LayoutManager android.support.v7.widget.GridLayoutManager@33d32b28 is already attached to a RecyclerView:</span><br></pre></td></tr></table></figure>
+<p>我们很自然的想到需要在Viewholder被回收的时候将RecyclerView的LayoutManger置空:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(ViewHolder viewHolder, <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">    viewHolder.recyclerView.setLayoutManager(<span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而是不行的！原因是时机的问题：复用ViewHolder未必需要先将ViewHolder回收，在ViewHolder移出ViewPort后并且有同一类型的ViewHolder需要展示当然直接被绑定。<br>所以我们需要先把LayoutManager中已经绑定的RecyclerView移除，但是找不到方法可以这么做！<br>查看源码LayoutManager持有一个recyclerView的实例，所以只要设置这个实例为空就可以了，而这个recyclerView的成员是包名访问的，只要创建一个同名包的方法就可以了:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">package android.support.v7.widget;</span><br><span class="line">public final class RecyclerViewUtils &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就可以访问LayoutManger的<code>mRecyclerView</code>和它的<code>setRecyclerView</code>方法了。<br>然而直接调用setRecyclerView也是不行的！<br>RecyclerView在和LayoutManger绑定后作了很多设置和状态记录需要将其一并清除，否则在视图上会有紊乱。正确的作法是调用recyclerView的<code>setLayoutManager</code>方法。<br>于是终于有:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">detachLayoutManager</span><span class="params">(LayoutManager manager)</span> </span>&#123;</span><br><span class="line">  RecyclerView old = manager == <span class="keyword">null</span> ? <span class="keyword">null</span> : manager.mRecyclerView;</span><br><span class="line">  <span class="keyword">if</span> (old != <span class="keyword">null</span>) &#123;</span><br><span class="line">    old.setLayoutManager(<span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样在onBind的时候终于可以不用再创建LayoutManger了！而且运行的很好～</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          只包裹文本的BackgroundColorSpan
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/11/07/textview-multiple-line-ellipsize/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          TextView多行文本Ellipsize的终极解决方案
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

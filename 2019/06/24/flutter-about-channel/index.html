@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>flutter: 平台层与运行层的双向通信Channel | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="12sdk: v1.5.4-hotfix.1@stableengine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f  存在这样的情形: flutter应用的视图控件响应用户的输入(比如KeyEvent), 需要将平台的按键数据传递到flutter的dart环境并响应, 同时应用可能因为某个操作需要调用平台的接口让手机震动. 但是flutter的App视图运行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter: 平台层与运行层的双向通信Channel">
+<meta property="og:url" content="http://www.lindeer.net/2019/06/24/flutter-about-channel/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="12sdk: v1.5.4-hotfix.1@stableengine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f  存在这样的情形: flutter应用的视图控件响应用户的输入(比如KeyEvent), 需要将平台的按键数据传递到flutter的dart环境并响应, 同时应用可能因为某个操作需要调用平台的接口让手机震动. 但是flutter的App视图运行">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-24T15:27:57.000Z">
+<meta property="article:modified_time" content="2021-05-11T05:31:19.928Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-flutter-about-channel" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      flutter: 平台层与运行层的双向通信Channel
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-24T15:27:57.000Z" itemprop="datePublished">Jun 24 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: v1.5.4-hotfix.1@stable</span><br><span class="line">engine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f</span><br></pre></td></tr></table></figure>
+
+<p>存在这样的情形: flutter应用的视图控件响应用户的输入(比如KeyEvent), 需要将平台的按键数据传递到flutter的dart环境并响应, 同时应用可能因为某个操作需要调用平台的接口让手机震动. 但是flutter的App视图运行dart代码,平台(Android)运行Java代码, 同时dart层无法识别java层定义的对象类, 这就需要将数据在不同的运行环境中传递, flutter框架中的channel机制其实就是实现这个目的的.</p>
+<p>一些文章和部分代码可能会让人感到困扰, 为什么已经有send接口了还要添加一个setMessageHander接口, 同时send已经有回调reply了, 怎么MessageHandler除了数据还有带一个reply.</p>
+<p>理解的关键其实就是这个channel, 顾名思义, 就是进行数据传送的通道, 在平台层(java)与运行层(dart)进行数据通信. 一旦涉及通信就涉及对象传递, 而在不同运行时(runtime)环境进行对象传递就必然涉及对象序列化了. 所以不用被名称迷惑, <strong>所谓的<code>MessageCodec</code>其实就是专门作对象序列化的实例</strong>, 而通道既然能发送数据也必须能够接收数据,  如此的双向通信, 仅此而已.</p>
+<p>一个通道关联3个对象： 名称, 操作与序列化, 操作即具体做收发消息的工作, 即<code>Messenger</code>. 而消息按类型又分为普通对象, 操作方法, 数据流, 对应着3种基本通道: <code>BasicMessageChannel&lt;T&gt;, MethodChannel, EventChannel</code></p>
+<p>####发送有时机, 接收无定时<br>平台端(android)可以显式的创建一个通道, 通道建立后既可作为发送端又可作为接收端, 作为发送端可以主动的传送相关数据, 是为<strong>有时机</strong>, 作为接收端, 只能被动等待数据到来, 是为<strong>无定时</strong></p>
+<p>####数据发送<br>调用一个通道的send方法,即为发送数据了, 有时发送完数据需要一个反馈, 于是有另一个回调参数<code>Reply&lt;T&gt;</code>, 这个回复是接收端反馈给发送端后发送端作的响应, 可以叫做<strong>发送回复</strong>.</p>
+<p>####数据接收<br>每种通道都设置了一个<code>setMessageHandler</code>的方法, <code>MessageHandler&lt;T&gt;</code>其实就是通道的数据接收器, 更容易理解的名字应该是<code>MessageReceiver</code>, 专门等待发送端发送的数据; 表示通道建立后作为接收方接收数据后进行的处理, 数据处理完之后可能需要再反馈给发送端, 所以<code>MessageHandler&lt;T&gt;.onMessage(T message, Reply&lt;T&gt; reply)</code>中的<code>Reply&lt;T&gt;</code>是接收端反馈给发送端的回复, 可以叫做<strong>接收回复</strong></p>
+<p>####通道解码<br>理解了通道本质, 通道的解码<code>MessageCodec</code>就显而易见了, 也就显得不那么重要了: 在数据通信过程中针对各种各样的数据对象进行序列化和反序列化. 我们自己也完全可以定制自己的序列方式(比如gson), 因为无论是c++层java层还是dart层, 只能读写字节.</p>
+<p>可以总结如下：<br>通道的本质即数据通信<br>通道的解码即对数据进行序列化和反序列化<br>通道可作为发送端也可作为接收端<br>通道最终是以二进制字节的形态传送数据<br>c++消弥平台的差异(android,ios), 同时提供统一的接口和方式供dart使用</p>
+<p>####数据发送示例<br><strong>普通对象传递</strong>-以Android端传递按键事件至dart端为例<br>按键数据被包装成一个对象实例，通道对象类型是<code>BinaryMessenger&lt;Object&gt;</code>调用序列如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">FlutterView.onKeyDown</span><br><span class="line">  AndroidKeyProcessor.onKeyDown</span><br><span class="line">    KeyEventChannel.keyDown</span><br><span class="line">     BasicMessageChannel.send</span><br><span class="line">       BinaryMessenger.send -&gt; DartExecutor.send</span><br><span class="line">         DartMessenger.send</span><br><span class="line">           FlutterJNI.dispatchPlatformMessage</span><br></pre></td></tr></table></figure>
+<p>最终调用了<code>BinaryMessenger</code>的send方法, 其实现体是<code>DartExecutor</code>, <code>DartExecutor</code>是平台层与运行层交互的点, 它实现了平台向dart调用, dart向平台的响应.</p>
+<p><strong>调用dart方法</strong>-以Android端传递导航事件至dart端为例<br>activity响应打开页面的方法onNewIntent被flutter定义了一个导航方法，通道对象类型是<code>MethodChannel</code>, 调用序列如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">FlutterActivityDelegate.onNewIntent</span><br><span class="line">  FlutterActivityDelegate.loadIntent</span><br><span class="line">    FlutterView.setInitialRoute</span><br><span class="line">      NavigationChannel.setInitialRoute</span><br><span class="line">        MethodChannel.invokeMethod</span><br><span class="line">          new MethodCall</span><br><span class="line">          JSONMethodCodec.encodeMethodCall</span><br><span class="line">          BinaryMessenger.send -&gt; DartExecutor.send</span><br><span class="line">            DartMessenger.send</span><br><span class="line">              FlutterJNI.dispatchPlatformMessage</span><br></pre></td></tr></table></figure>
+<p>可以看到方法的名称与参数被包装成了<code>MethodCall</code>, 结构体被序列化成了字节之后传递给dart, 最终还是调用了<code>DartMessenger</code>的send方法</p>
+<p>此外还有<code>EventChannel</code>，但是在代码中没有实例化(2019.06.24 flutter-engine:52c7a1e8)就先不分析了，本质与原理还是一样的。</p>
+<p>####响应发送回复<br>可以看到<code>DartMessenger</code>用<code>pendingReplies:Map&lt;&gt;</code>缓存了<code>BinaryMessenger.BinaryReply</code>, 待dart代码执行完发送端操作后响应<code>handlePlatformMessageResponse</code>时取出, 完成发送反馈, 在<code>MethodChannel</code>中即为方法返回值.</p>
+<p>####数据接收示例<br><strong>接收dart层通知</strong><br>目前代码中只有<code>AccessibilityChannel</code>有用到<code>BasicMessageChannel.MessageHandler</code>, 这是为了设置android视图<code>View</code>的<code>Accessibility</code>属性, 平常开发不怎么用到, 但毫无疑问,最终调用的还是平台层的相关代码</p>
+<p><strong>接收dart层调用</strong>-以Android端调用平台类PlatformChannel为例<br><code>PlatformChannel</code>负责dart层向平台层调用的统一操作, 其创建过程如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">FlutterView.FltterView()</span><br><span class="line">  new PlatformChannel</span><br><span class="line">    new MethodChannel</span><br><span class="line">    MethodChannel.setMethodCallHandler</span><br><span class="line">      BinaryMessenger.setMessageHandler -&gt; DartExecutor.setMessageHandler</span><br><span class="line">        DartMessenger.setMessageHandler</span><br><span class="line">  new PlatformPlugin</span><br><span class="line">    PlatformChannel.setPlatformMessageHandler</span><br></pre></td></tr></table></figure>
+<p><code>DartMessenger</code>用<code>messageHandlers</code>根据通道名称缓存了<code>BinaryMessenger.BinaryMessageHandler</code>, 平台层作为接收方不定时等待dart层发送数据, 方法调用流程如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DartMessenger.handleMessageFromDart</span><br><span class="line">  BinaryMessenger.BinaryMessageHandler.onMessage -&gt; MethodChannel.IncomingMethodCallHandler.onMessage</span><br><span class="line">    MethodCallHandler.onMethodCall -&gt; PlatformChannel.parsingMethodCallHandler.onMethodCall</span><br><span class="line">      PlatformMessageHandler.vibrateHapticFeedback -&gt; PlatformPlugin.mPlatformMessageHandler.vibrateHapticFeedback</span><br><span class="line">        PlatformPlugin.vibrateHapticFeedback</span><br><span class="line">          View.performHapticFeedback</span><br></pre></td></tr></table></figure>
+<p>由上可见<code>DartMessenger</code>是channel机制中最为重要的核心类, 是在平台层负责与运行层通信的最关键角色.</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2019/06/27/shit-life-as-code-monkey/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          臭狗屎堆里的码畜人生
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/22/flutter-wrong-full-snapshot-version/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          flutter: 彻底解决Wrong full snapshot version问题
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

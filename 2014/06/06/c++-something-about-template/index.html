@@ -43,7 +43,12 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
     
     
   </nav>
@@ -69,10 +74,12 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <ol>
+        
+        
+          <ol>
 <li>模板实例化时针对成员函数的特化</li>
 </ol>
 <hr>
@@ -93,8 +100,10 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;class T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">intersects</span><span class="params">(<span class="keyword">const</span> Rect&lt;T&gt;&amp; r1, <span class="keyword">const</span> Rect&lt;T&gt;&amp; r2, Rect&lt;T&gt;&amp; interRect = getDefault&lt; Rect&lt;T&gt; &gt;())</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;class T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> T&amp; <span class="title">getDefault</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> T s = <span class="built_in">T</span>();</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>妙的是<code>getDefault&lt;T&gt;()</code>可以返回各种全局默认类型比如 <code>Point&lt;float&gt;, Rect&lt;double&gt;</code> 。</p>
 
+        
       
     </div>
+
     
     
     <div class="article-category">

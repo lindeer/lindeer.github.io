@@ -43,7 +43,12 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
     
     
   </nav>
@@ -69,18 +74,22 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <p>想当然的写成<code>gluOrtho2D(0, width, height, 0);</code> 但这是不对的。验证的方法是，只要画四条直线, width, height分别是窗口宽高：</p>
+        
+        
+          <p>想当然的写成<code>gluOrtho2D(0, width, height, 0);</code> 但这是不对的。验证的方法是，只要画四条直线, width, height分别是窗口宽高：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">glBegin(GL_LINE_LOOP);</span><br><span class="line">    glColor3ub(<span class="number">0xFF</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(width, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(width, height);</span><br><span class="line">    glVertex2i(<span class="number">0</span>, height);</span><br><span class="line">glEnd();</span><br></pre></td></tr></table></figure>
 <p>应该只有左上两条直线能显示才对。但结果是右下两条显示了出来,把width+1, 则右边线条去掉了，所以整体的显示结果是向期望的向左上偏移了一个像素。<br>调整成这样才是正确的：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gluOrtho2D(<span class="number">-1</span>, width - <span class="number">1</span>, height - <span class="number">1</span>, <span class="number">-1</span>);</span><br></pre></td></tr></table></figure>
 <p>显然<code>gluOrtho2D</code>对于整数的取值区间是<code>(m, n]</code>。</p>
 <p>程序在这种情况下真正做到了精确至像素，一个像素的错误（不是误差）让结果产生重大影响。真正的精确到像素只有可能是实在的数据运算而不是感觉和观察，不知设计湿看了作何想。</p>
 
+        
       
     </div>
+
     
     
     <div class="article-category">

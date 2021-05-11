@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android动态改变工程依赖 | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方:app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:so">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android动态改变工程依赖">
+<meta property="og:url" content="http://www.lindeer.net/2019/06/11/android-dynamic-gradle-project-setting/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方:app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:so">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-11T14:02:32.000Z">
+<meta property="article:modified_time" content="2021-05-11T03:15:35.412Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-android-dynamic-gradle-project-setting" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      Android动态改变工程依赖
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-11T14:02:32.000Z" itemprop="datePublished">Jun 11 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>在<code>app/build.gradle</code>有如下库依赖:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile <span class="string">&quot;com.xxx.yyy:somelib:$version&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在如果要改成源码依赖(工程依赖)需要改2处地方:<br><code>app/build.gradle</code>:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile project(<span class="string">&#x27;:somelib&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>settings.gradle</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include &#x27;:somelib&#x27;</span><br><span class="line">project(&quot;:somelib&quot;).projectDir = new File(&quot;/lib/dir&quot;, &quot;/some/path/somelib&quot;)</span><br></pre></td></tr></table></figure>
+<p>现在依赖的库非常多, 而且还存在依赖嵌套, 希望<strong>只改一处配置就能够切换库依赖与源码依赖</strong></p>
+<p>显然用库依赖<code>settings.gradle</code>里不需要<code>include</code>那坨语句, 那么必然需要在<code>settings.gradle</code>里定义一个变量来作条件判断, 这里需要解决的一个核心问题是<code>app/build.gradle</code>能够访问到<code>settings.gradle</code>里的这个变量来继续来作<code>compile &quot;com.xxx.yyy:somelib:$version&quot;</code>还是<code>compile project(&#39;:somelib&#39;)</code>的判断, 也就是需要一个<em><strong>全局可访问的gradle变量</strong></em></p>
+<p>网上搜索了一圈竟然没找到!</p>
+<p>研究了一下发现以下重要2点:</p>
+<ol>
+<li><code>settings.gradle</code>对象生成早于<code>app/build.gradle</code>甚至早于根目录的<code>build.gradle</code>, 所以在build.gradle里声明<code>ext &#123; someVar=xxx &#125;</code>变量无效, settings无法访问</li>
+<li><code>app/build.gradle</code>上下文依赖的<code>project</code>对象与<code>settings.gradle</code>共享同一个gradle对象</li>
+</ol>
+<p>于是有如下配置:<br><code>settings.gradle</code>:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> module_config = [</span><br><span class="line">    <span class="string">&#x27;somelib&#x27;</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;aaa&#x27;</span>: <span class="string">&#x27;1.0.0&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;bbb&#x27;</span>: <span class="string">&#x27;0.2.0&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;ccc&#x27;</span>: <span class="string">&#x27;0.0.3&#x27;</span>,</span><br><span class="line">]</span><br><span class="line">module_config.each &#123; k, v -&gt;</span><br><span class="line">    <span class="keyword">if</span> (!v) &#123;</span><br><span class="line">        include <span class="string">&quot;:$&#123;k&#125;&quot;</span></span><br><span class="line">        project(<span class="string">&quot;:$&#123;k&#125;&quot;</span>).projectDir = <span class="keyword">new</span> File(rootDir.getParent(), <span class="string">&quot;/some/path/$&#123;k&#125;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">gradle.ext.dependon = &#123; project, name -&gt;</span><br><span class="line">    <span class="keyword">def</span> ver = module_config[name]</span><br><span class="line">    <span class="keyword">def</span> handler = project.dependencies</span><br><span class="line">    <span class="keyword">if</span> (!ver) &#123;</span><br><span class="line">        handler.compile project.project(<span class="string">&quot;:$name&quot;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler.compile <span class="string">&quot;com.xxx.yyy:$name:$ver&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里用<code>gradle.ext</code>定义了一个全局的方法而不是一个变量, 这样在引用的时候直接调用:<br><code>app/build.gradle</code>:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;somelib&quot;</span>)</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;ccc&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们只需更改<code>module_config</code>中对应模块的版本就可以实现一动态改变工程依赖的功能了!</p>
+<p>注意<code>gradle.ext.dependon</code>传入的是<code>org.gradle.apiProject</code>对象, 而project.dependencies是<code>org.gradle.api.artifacts.dsl.DependencyHandler</code>对象, 分别是gradle配置类</p>
+<p>最根本最重要最核心的其实是<code>gradle.ext</code>这个全局可访问变量, 只要有了它完全可以用任何方式实现.</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2019/06/22/flutter-wrong-full-snapshot-version/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          flutter: 彻底解决Wrong full snapshot version问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/02/recylerview-no-type-cast-viewholder/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          一劳永逸——RecyclerView无类型强转的通用ViewHolder
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>flutter: 深入通信-接收端 | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="12sdk: [v1.5.4-hotfix.1](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;flutter&#x2F;commit&#x2F;7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stableengine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;engine&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter: 深入通信-接收端">
+<meta property="og:url" content="http://www.lindeer.net/2019/07/02/flutter-channel-receiver/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="12sdk: [v1.5.4-hotfix.1](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;flutter&#x2F;commit&#x2F;7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stableengine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;engine&#x2F;">
+<meta property="og:locale">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/7/2/16bb0cdbc662c481?w=854&h=1095&f=jpeg&s=91118">
+<meta property="article:published_time" content="2019-07-02T04:07:29.000Z">
+<meta property="article:modified_time" content="2021-05-11T05:31:19.928Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/7/2/16bb0cdbc662c481?w=854&h=1095&f=jpeg&s=91118"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-flutter-channel-receiver" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      flutter: 深入通信-接收端
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-07-02T04:07:29.000Z" itemprop="datePublished">Jul 2 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通过<a target="_blank" rel="noopener" href="https://juejin.im/post/6844903873950253069#heading-6">PlatformChannel为平台层作为接收端的例子</a>我们已经了解到<code>DartMessenger</code>通过响应接口<code>handleMessageFromDart</code>来把Dart层的消息/操作发送到平台层，而这个方法是<code>PlatformMessageHandler</code>这个接口对象的，持有接口实例的对象正是<code>FlutterJNI</code>。</p>
+<p>作为被动调用的一方，平台层等待消息接收，并不知道消息的来源和用途，所以我们只需要按图索骥，找出调用方，就可追踪接收过程的完整流程。</p>
+<h1 id="追溯"><a href="#追溯" class="headerlink" title="追溯"></a>追溯</h1><p>容易看到<code>FlutterJN.handlePlatformMessage</code>调用了<code>handleMessageFromDart</code>，此函数被标记成<code>@SuppressWarnings(&quot;unused&quot;)</code>，很大可能与C++层有关了，搜索方法名称果然在``中找到<code>&quot;handlePlatformMessage&quot;</code>, 函数签名是<code>&quot;(Ljava/lang/String;[BI)V&quot;</code>正是些方法，方法对象被全局变量<code>g_handle_platform_message_method</code>持有，又被<code>FlutterViewHandlePlatformMessage</code>引用， 至此又进入到C++层。</p>
+<p>这里<code>HandlePlatformMessage</code>这个名称实在太让人产生误解，感觉像是C++层在处理平台层发来的消息，然而实际却是传递Dart层的消息到平台，虽然<code>handlePlatformXXX</code>这种风格都表示处理Dart层的消息，并且保持的很好，但还是没有<code>receiveXXX</code>来的简单直观明了。</p>
+<p>为便于理解以下是<strong>被调用序列</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DartMessenger.handleMessageFromDart =&gt; PlatformMessageHandler</span><br><span class="line">  FlutterJNI.handlePlatformMessage =&gt; g_handle_platform_message_method</span><br><span class="line">    FlutterViewHandlePlatformMessage</span><br><span class="line">      PlatformViewAndroid::HandlePlatformMessage &lt;= PlatformView::HandlePlatformMessage</span><br><span class="line">       ...Shell::OnEngineHandlePlatformMessage &lt;= PlatformView::Delegate::OnEngineHandlePlatformMessage</span><br><span class="line">         Engine::HandlePlatformMessage &lt;= RuntimeDelegate::HandlePlatformMessage</span><br><span class="line">           RuntimeController::HandlePlatformMessage &lt;= WindowClient::HandlePlatformMessage</span><br><span class="line">             ::SendPlatformMessage</span><br><span class="line">             ...tonic::DartCallStatic(::_SendPlatformMessage</span><br><span class="line">             ...Window::RegisterNatives</span><br></pre></td></tr></table></figure>
+<p>这与发送端的序列层次完全一样，从上到下分别是Shell -&gt; PlatformView -&gt; Engine -&gt; RuntimeController -&gt; Window。</p>
+<p>可知<code>FlutterViewHandlePlatformMessage</code>是C++调用的终点，全局变量<code>g_handle_platform_message_method</code>其实是平台java方法，所以需要知道java方法何时与C++方法关联起来的， 即<code>g_handle_platform_message_method</code>何时被设置的:<br>以下是<strong>被调用序列</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">g_handle_platform_message_method = env-&gt;GetMethodID(,&quot;handlePlatformMessage&quot;,)</span><br><span class="line">  ::RegisterApi</span><br><span class="line">    PlatformViewAndroid::Register</span><br><span class="line">      JNI_OnLoad</span><br><span class="line">        System.loadLibrary(&quot;flutter&quot;) (library_loader.cc:23)</span><br><span class="line">          FlutterMain.startInitialization (FlutterMain.java:161)</span><br><span class="line">            FlutterApplication.onCreate (FlutterApplication.java:22)</span><br></pre></td></tr></table></figure>
+<p><code>JNI_OnLoad</code>被声明在了链接器脚本(android_exports.lst)中，表示被加载时执行的操作。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>结合前2篇的调用细节分析（精确到函数），及一些关键类的创建时机做一个简明flutter通道数据通信类图如下：<br>左边是java类,右边是C++类</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/7/2/16bb0cdbc662c481?w=854&h=1095&f=jpeg&s=91118" alt="Flutter-Channel.jpg"></p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2019/07/04/flutter-thread-communicate-and-message-loop/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          flutter: 线程通信与消息循环(C++)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/30/constraintlayout-example-you-may-need/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          可能是你最需要的ConstraintLayout示例集锦
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

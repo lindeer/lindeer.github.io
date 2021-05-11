@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>GestureDetector无法取消长按 | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用OnItemTouchListener可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GestureDetector无法取消长按">
+<meta property="og:url" content="http://www.lindeer.net/2017/06/29/gesturedetector-long-click-could-not-cancel/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用OnItemTouchListener可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-06-29T10:58:20.000Z">
+<meta property="article:modified_time" content="2021-05-11T03:04:58.994Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-gesturedetector-long-click-could-not-cancel" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      GestureDetector无法取消长按
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-06-29T10:58:20.000Z" itemprop="datePublished">Jun 29 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用<code>OnItemTouchListener</code>可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通常这样的操作是各个Item持有同一个操作实例， 这就是所谓“外部总控”。</p>
+<p>比如：对一个Item长按，item自己状态变成selected或者checked, 同时外部界面变成编辑界面，Item的操作各不相同，但变成编译界面不区别具体某个Item，这样一个操作不仅涉及Item内部状态数据的变化，也涉及外部操作响应。<code>OnItemTouchListener</code>的好处就是能够统一在recyclerView层进行Touch事件的操作而同时不影响Item内部设置的各个Touch事件。<br><strong>但是</strong>，现实却是另一回事，实践了一下<code>OnItemTouchListener</code>却没有达到预想的目的。</p>
+<p>一般的，利用<code>OnItemTouchListener</code>这个接口需要再用到GestureDetector这个对象。<br>声明了对一个Item的操作接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnItemClickListener</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(RecyclerView.ViewHolder holder)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(RecyclerView.ViewHolder holder)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">startDragging</span><span class="params">(RecyclerView.ViewHolder holder, MotionEvent e)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>GestureDetector.SimpleOnGestureListener</code>的<code>onSingleTapUp</code>响应<code>onItemClick</code>, <code>onLongPress</code>响应<code>onItemLongClick</code>，<code>onDown</code>里外部决定是否可拖拽<code>startDragging</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">RecyclerItemTouchHandler</span> <span class="keyword">implements</span> <span class="title">RecyclerView</span>.<span class="title">OnItemTouchListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> OnItemClickListener mListener;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> GestureDetectorCompat mGestureDetector;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RecyclerItemTouchHandler</span><span class="params">(<span class="keyword">final</span> RecyclerView rv, OnItemClickListener listener)</span> </span>&#123;</span><br><span class="line">        mListener = listener;</span><br><span class="line">        GestureDetector.OnGestureListener gestureListener = <span class="keyword">new</span> GestureDetector.SimpleOnGestureListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onSingleTapUp</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onSingleTapUp&quot;</span>);</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    mListener.onItemClick(rv.getChildViewHolder(child));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.onSingleTapUp(e);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLongPress</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    mListener.onItemLongClick(rv.getChildViewHolder(child));</span><br><span class="line">                &#125;</span><br><span class="line">                android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onLongPress&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onDown</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">boolean</span> handled = child != <span class="keyword">null</span> &amp;&amp; mListener.startDragging(rv.getChildViewHolder(child), e);</span><br><span class="line">                <span class="keyword">if</span> (handled) &#123;</span><br><span class="line">                    mGestureDetector.setIsLongpressEnabled(<span class="keyword">false</span>);</span><br><span class="line">                    android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onDown&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> handled || <span class="keyword">super</span>.onDown(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        mGestureDetector = <span class="keyword">new</span> GestureDetectorCompat(rv.getContext().getApplicationContext(),</span><br><span class="line">                gestureListener);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(RecyclerView rv, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mGestureDetector.onTouchEvent(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onTouchEvent</span><span class="params">(RecyclerView rv, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onTouchEvent&quot;</span>);</span><br><span class="line">        mGestureDetector.onTouchEvent(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRequestDisallowInterceptTouchEvent</span><span class="params">(<span class="keyword">boolean</span> disallowIntercept)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">hitTest</span><span class="params">(View view, <span class="keyword">float</span> x, <span class="keyword">float</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> location[] = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        view.getLocationOnScreen(location);</span><br><span class="line">        <span class="keyword">int</span> viewX = location[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> viewY = location[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">return</span> (x &gt; viewX &amp;&amp; x &lt; (viewX + view.getWidth())) &amp;&amp;</span><br><span class="line">                (y &gt; viewY &amp;&amp; y &lt; (viewY + view.getHeight()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>startDragging</code>的实现中利用<code>ItemTouchHelper</code>的来做具体操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">view.addOnItemTouchListener(<span class="keyword">new</span> RecyclerItemTouchHandler(view, <span class="keyword">new</span> RecyclerItemTouchHandler.OnItemClickListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(RecyclerView.ViewHolder holder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mPresenter.isEdit()) &#123;</span><br><span class="line">            <span class="keyword">int</span> pos = holder.getAdapterPosition();</span><br><span class="line">            <span class="keyword">boolean</span> selected = !mPresenter.isSelected(pos);</span><br><span class="line">            mPresenter.selectProvider(pos, selected);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(RecyclerView.ViewHolder holder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mPresenter.setEdit(<span class="keyword">true</span>) &amp;&amp;</span><br><span class="line">                mPresenter.selectProvider(holder.getAdapterPosition(), <span class="keyword">true</span>)) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">startDragging</span><span class="params">(RecyclerView.ViewHolder holder, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        View drag = holder.itemView.findViewById(R.id.drag_icon);</span><br><span class="line">        <span class="keyword">boolean</span> handled = drag != <span class="keyword">null</span> &amp;&amp; RecyclerItemTouchHandler.hitTest(drag,</span><br><span class="line">                e.getRawX(), e.getRawY());</span><br><span class="line">        <span class="keyword">if</span> (handled) &#123;</span><br><span class="line">            mTouchHelper.startDrag(holder);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> handled;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这一切是那么的完美，<strong>然而</strong>实现的效果却是在拖拽的过程中响应了<code>onLongPress</code>的事件！费了半天劲找原因，看了下<code>GestureDetector</code>源码，原来是因为在<code>onDown</code>中并没有取消<code>LONG_PRESS</code>的消息:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> MotionEvent.ACTION_DOWN:</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (mIsLongpressEnabled) &#123;</span><br><span class="line">    mHandler.removeMessages(LONG_PRESS);</span><br><span class="line">    mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()</span><br><span class="line">            + TAP_TIMEOUT + LONGPRESS_TIMEOUT);</span><br><span class="line">&#125;</span><br><span class="line">mHandler.sendEmptyMessageAtTime(SHOW_PRESS, mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);</span><br><span class="line">handled |= mListener.onDown(ev);</span><br><span class="line"><span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>也就是说即使onDown返回<code>true</code>，<code>LONG_PRESS</code>的消息还是发出了。这与我们通常对Touch事件的理解有些不同，为啥要这样写呢？我认为应该改成这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">handled |= mListener.onDown(ev);</span><br><span class="line"><span class="keyword">if</span> (!handled &amp;&amp; mIsLongpressEnabled) &#123;</span><br><span class="line">    mHandler.removeMessages(LONG_PRESS);</span><br><span class="line">    mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()</span><br><span class="line">            + TAP_TIMEOUT + LONGPRESS_TIMEOUT);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>但是不管怎样，因为GestureDetector无法取消长按，没法用这种实现了，最后在外部还是用了<code>View.OnClickListener</code>，<code>View.OnLongClickListener</code>，<code>View.OnTouchListener</code>，显然，在<code>OnTouchListener</code>中由于返回了<code>true</code>, <code>OnLongClickListener</code>无法被响应。但是这种实现有个不好的点是在执行<code>onBindViewHolder</code>时不能在对应的View上再设置或者覆盖其它的Listener了，否则操作失效。</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2017/11/07/textview-multiple-line-ellipsize/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          TextView多行文本Ellipsize的终极解决方案
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/06/14/notes-about-c11/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          C++11笔记
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

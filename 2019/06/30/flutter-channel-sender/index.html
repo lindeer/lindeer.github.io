@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>flutter: 深入通信-发送端 | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="12sdk: [v1.5.4-hotfix.1](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;flutter&#x2F;commit&#x2F;7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stableengine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;engine&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter: 深入通信-发送端">
+<meta property="og:url" content="http://www.lindeer.net/2019/06/30/flutter-channel-sender/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="12sdk: [v1.5.4-hotfix.1](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;flutter&#x2F;commit&#x2F;7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stableengine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https:&#x2F;&#x2F;github.com&#x2F;flutter&#x2F;engine&#x2F;">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-30T02:06:17.000Z">
+<meta property="article:modified_time" content="2021-05-11T05:31:19.928Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-flutter-channel-sender" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      flutter: 深入通信-发送端
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-30T02:06:17.000Z" itemprop="datePublished">Jun 30 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+
+<p>站在平台端的视角对通道有一个通观概览的认知之后就需要深入内里对通信机制需要一个深入剖析了，之前已经了解到<code>FlutterJNI.dispatchPlatformMessage</code>是平台层（java）发送数据调用的最后一层，那么继续这个调用序列：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">FluttereJNI.dispatchPlatformMessage</span><br><span class="line">  nativeDispatchPlatformMessage(FlutterJNI.java)</span><br><span class="line">    DispatchPlatformMessage(platform_view_android_jni.cc:56)</span><br><span class="line">      AndroidShellHolder::GetPlatformView(platform_view_android_jni.cc:421)</span><br><span class="line">      PlatformViewAndroid::DispatchPlatformMessage(platform_view_android.cc:92)</span><br><span class="line">        TaskRunners::GetPlatformTaskRunner =&gt; PlatformView::task_runners_</span><br><span class="line">        new PlatformMessageResponseAndroid()</span><br><span class="line">        new flutter::PlatformMessage(name, message, response)</span><br><span class="line">        PlatformView::DispatchPlatformMessage</span><br><span class="line">          PlatformView::Delegate::OnPlatformViewDispatchPlatformMessage() =&gt; Shell::On..()</span><br><span class="line">            ::GetUITaskRunner</span><br><span class="line">            TaskRunner::PostTask</span><br><span class="line">            ...Engine::DispatchPlatformMessage</span><br></pre></td></tr></table></figure>
+<p>发送消息最终调用到了C++层的<code>PlatformViewAndroid::DispatchPlatformMessage</code>方法， 又调用了<code>PlatformViewAndroid</code>成员<code>delegate_</code>的<code>OnPlatformViewDispatchPlatformMessage</code>方法， 所以我们要确定<code>PlatformView::Delegate</code>抽象类的实现体， 也就是要追踪成员被创建或赋值的地方。</p>
+<p>由构造函数可知成员<code>PlatformView::delegate_</code>是创建时外部传入，而<code>PlatformViewAndroid</code>作为子类把它的delegate传入，所以需要了解<br><code>PlatformViewAndroid</code>被创建时传入的delegate对象，</p>
+<p><code>android_shell_holder.cc:63</code>可知创建<code>PlatformViewAndroid</code>时传入的的delegate对象实际为<code>Shell</code>，在其方法中又异步调用了成员<code>engine_</code>的方法，即<code>Engine::DispatchPlatformMessage</code>方法</p>
+<p>所以我们需要</p>
+<ol>
+<li>明确<code>PlatformViewAndroid</code>被创建的流程</li>
+<li>明确<code>Engine</code>被赋值或创建的时机</li>
+</ol>
+<h3 id="创建PlatformViewAndroid流程"><a href="#创建PlatformViewAndroid流程" class="headerlink" title="创建PlatformViewAndroid流程:"></a>创建<code>PlatformViewAndroid</code>流程:</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">AndroidShellHolder::AndroidShellHolder()</span><br><span class="line">  ThreadHost::ThreadHost</span><br><span class="line">    platform_thread=</span><br><span class="line">  fml::MessageLoop::EnsureInitializedForCurrentThread</span><br><span class="line">  platform_runner=fml::MessageLoop::GetCurrent().GetTaskRunner()</span><br><span class="line">  Shell::Create()</span><br><span class="line">    DartVMRef::Create(settings)</span><br><span class="line">    Shell::Create()</span><br><span class="line">      TaskRunner::RunNowOrPostTask</span><br><span class="line">        lamda() =&gt; Shell::CreateShellOnPlatformThread()</span><br><span class="line">          Shell::CreateCallback&lt;PlatformView&gt;(Shell&amp;) =&gt; on_create_platform_view</span><br><span class="line">            new PlatformViewAndroid(Shell,...)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>最重要的是<code>Shell::Create</code>这个方法，在调用时传入了一个回调，这个回调调用了<code>Shell::CreateShellOnPlatformThread()</code>， 继续回调了<code>on_create_platform_view</code>，其实现体上下文在<code>AndroidShellHolder</code>构造函数中。</p>
+<h3 id="创建Shell-engine-Engine-流程"><a href="#创建Shell-engine-Engine-流程" class="headerlink" title="创建Shell::engine_[Engine]流程:"></a>创建Shell::engine_[Engine]流程:</h3><p>第二个问题刚好承接了对每一个问题的分析: 我们是在创建<code>Shell</code>的时候创建了<code>PlatformViewAndroid</code>对象<br><code>shell.cc:38</code>可知<code>engine_</code>也是外部传入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Shell::CreateShellOnPlatformThread()</span><br><span class="line">  new Shell()</span><br><span class="line">  on_create_platform_view  =&gt; AndroidShellHolder.on_create_platform_view</span><br><span class="line">    std::make_unique&lt;PlatformViewAndroid&gt;()</span><br><span class="line">  TaskRunner::RunNowOrPostTask</span><br><span class="line">  ...lamda =&gt; engine = std::make_unique&lt;Engine&gt;() (shell.cc:131)</span><br><span class="line">  Shell::Setup</span><br><span class="line">    engine_ = std::move(engine); (shell.cc:388)</span><br></pre></td></tr></table></figure>
+<p>在<code>Shell::CreateShellOnPlatformThread </code>中先创建了<code>Shell</code>实例, 接着创建了<code>PlatformView</code>实例，接着又异步执行了一个lamda，创建了<code>Engine</code>实例</p>
+<p>这样前面两个重要对象的创建时机问题就终于明确了。</p>
+<p>继续我们第一阶段的调用分析, 异步执行了<code>Engine::DispatchPlatformMessage</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Engine::DispatchPlatformMessage</span><br><span class="line">  RuntimeController::DispatchPlatformMessage</span><br><span class="line">    Window::DispatchPlatformMessage</span><br><span class="line">      tonic::DartInvokeField(...,&quot;_dispatchPlatformMessage&quot;)</span><br></pre></td></tr></table></figure>
+<p>最终由此进行到了Dart层调用</p>
+<hr>
+<p>因为在<code>AndroidShellHolder </code>的构造函数中Flutter创建了<code>Shell</code>对象，所以同样需要明确：</p>
+<h3 id="创建AndroidShellHolder流程"><a href="#创建AndroidShellHolder流程" class="headerlink" title="创建AndroidShellHolder流程:"></a>创建<code>AndroidShellHolder</code>流程:</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">FlutterActivity.onCreate (FlutterActivity.java:89)</span><br><span class="line">  FlutterActivityDelegate.onCreate() (FlutterActivityDelegate.java:160)</span><br><span class="line">    FlutterView.FlutterView() (FlutterView.java:139)</span><br><span class="line">      new FlutterNativeView(Context) (FlutterNativeView.java:47)</span><br><span class="line">        FlutterNativeView.attach(this, false) (FlutterNativeView.java:165)</span><br><span class="line">          FlutterJNI.attachToNative (FlutterJNI.java:423)</span><br><span class="line">            AttachJNI(platform_view_android_jni.cc:149)</span><br><span class="line">              java_object(env, flutterJNI)</span><br><span class="line">              std::make_unique&lt;AndroidShellHolder&gt;(java_object)</span><br><span class="line">              AndroidShellHolder::IsValid</span><br><span class="line">              reinterpret_cast&lt;jlong&gt;</span><br></pre></td></tr></table></figure>
+<p>比较容易发现创建的时机正是<code>FlutterJNI</code>绑定到<code>FlutterNativeView</code>, 而<code>FlutterJNI</code>的成员<code>nativePlatformViewId</code>代表的正是C++<code>AndroidShellHolder</code>对象，在这个过程中重要对象如<code>Shell</code>和<code>Engine</code>相继被创建。<br>所以每次发送数据(或者平台调用dart方法)都是<code>FlutterJNI</code>对象将成员<code>nativePlatformViewId</code>传入c++层，转成<code>AndroidShellHolder</code>对象通过<code>Engine</code>最终调用到dart层</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2019/06/30/constraintlayout-example-you-may-need/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          可能是你最需要的ConstraintLayout示例集锦
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/27/shit-life-as-code-monkey/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          臭狗屎堆里的码畜人生
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

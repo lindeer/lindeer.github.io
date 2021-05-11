@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Archives | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta property="og:type" content="website">
+<meta property="og:title" content="林鹿-Lindeer">
+<meta property="og:url" content="http://www.lindeer.net/archives/page/2/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:locale">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      
+  
+    <article id="post-dynamic-proxy-of-dynamic-switch" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/05/22/dynamic-proxy-of-dynamic-switch/">动态切换的动态代理</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-05-22T11:40:29.000Z" itemprop="datePublished">May 22 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br>先理解前提条件和程序上下文, 譬如有如下接口:</p>
+          
+            <p class="article-more-link">
+              <a href="/2019/05/22/dynamic-proxy-of-dynamic-switch/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-android-text-width-trap" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2018/04/28/android-text-width-trap/">Android计算文本宽度的坑</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2018-04-28T03:48:31.000Z" itemprop="datePublished">Apr 28 2018</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br>想法很简单：计算每个非目标child的wrap_content宽度，用父宽度减去得availableWidth，再计算目标child的宽度，如果超过就减小字体值，直至合适的字体大小值出现。<br>然而实现后实际宽度比预期少那几个像素，使得相邻的文本折行了。</p>
+          
+            <p class="article-more-link">
+              <a href="/2018/04/28/android-text-width-trap/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-recyclerview-divider-by-viewtype" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2018/04/18/recyclerview-divider-by-viewtype/">RecyclerView区分视图类型的Divider</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2018-04-18T08:41:11.000Z" itemprop="datePublished">Apr 18 2018</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
+          
+            <p class="article-more-link">
+              <a href="/2018/04/18/recyclerview-divider-by-viewtype/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-backgroundcolorspan-wrap-text-only" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/">只包裹文本的BackgroundColorSpan</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-12-22T03:06:27.000Z" itemprop="datePublished">Dec 22 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-reuse-layoutmanager" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/11/10/reuse-layoutmanager/">重用LayoutManager</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-11-10T11:32:23.000Z" itemprop="datePublished">Nov 10 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-textview-multiple-line-ellipsize" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/11/07/textview-multiple-line-ellipsize/">TextView多行文本Ellipsize的终极解决方案</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-11-07T01:24:41.000Z" itemprop="datePublished">Nov 7 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-gesturedetector-long-click-could-not-cancel" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/06/29/gesturedetector-long-click-could-not-cancel/">GestureDetector无法取消长按</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-06-29T10:58:20.000Z" itemprop="datePublished">Jun 29 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用<code>OnItemTouchListener</code>可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通常这样的操作是各个Item持有同一个操作实例， 这就是所谓“外部总控”。</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/06/29/gesturedetector-long-click-could-not-cancel/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-notes-about-c11" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/06/14/notes-about-c11/">C++11笔记</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-06-14T02:49:55.000Z" itemprop="datePublished">Jun 14 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/06/14/notes-about-c11/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-books-of-cet6" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/05/12/books-of-cet6/">适合阅读的英语原著(六级)</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-05-12T09:03:21.000Z" itemprop="datePublished">May 12 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>针对大学英语六级的英语泛读，同样是扇贝的书目见四级<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/23a1a98e54b0">清单</a></p>
+          
+            <p class="article-more-link">
+              <a href="/2017/05/12/books-of-cet6/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-books-of-cet4" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/05/12/books-of-cet4/">适合阅读的英语原著(四级)</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-05-12T09:00:31.000Z" itemprop="datePublished">May 12 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>从扇贝上的难度分类中搜集的书单，同时自己做一个备忘，可以继续补充。<br>附上能找到的最便宜的电子书的链接。<br>中文的翻译参差不齐，尽量以译林译文为主，很多出版社都是糊弄鬼，参考看吧</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/05/12/books-of-cet4/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav" class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/archives/">« Prev</a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><a class="page-number" href="/archives/page/4/">4</a><a class="page-number" href="/archives/page/5/">5</a><a class="extend next" rel="next" href="/archives/page/3/">Next »</a>
+  </nav>
+
+
+
+    </div>
+  </div>
+  
+
+
+<script type="text/javascript">
+let tgl=(s)=>{x=document.getElementsByName("expand");for(let i=0;i<x.length;i++)x[i].checked=s.checked;}
+</script>
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>

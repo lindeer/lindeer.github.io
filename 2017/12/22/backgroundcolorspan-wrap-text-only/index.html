@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>只包裹文本的BackgroundColorSpan | 林鹿-Lindeer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+  
+  <meta name="description" content="BackgroundColorSpan可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:所以我们期望达到的效果是一个只包裹文本的的背景底色。研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用BackgroundColorSpan这个类了，而要用ReplacementSpan，于是有: 1234567891011121314151617">
+<meta property="og:type" content="article">
+<meta property="og:title" content="只包裹文本的BackgroundColorSpan">
+<meta property="og:url" content="http://www.lindeer.net/2017/12/22/backgroundcolorspan-wrap-text-only/index.html">
+<meta property="og:site_name" content="林鹿-Lindeer">
+<meta property="og:description" content="BackgroundColorSpan可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:所以我们期望达到的效果是一个只包裹文本的的背景底色。研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用BackgroundColorSpan这个类了，而要用ReplacementSpan，于是有: 1234567891011121314151617">
+<meta property="og:locale">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/19161-3fe6386ac331457b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/19161-7577b2fed36609fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/19161-77992934e1917cc0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2017-12-22T03:06:27.000Z">
+<meta property="article:modified_time" content="2021-05-11T03:08:36.376Z">
+<meta property="article:author" content="glWesley">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="wrapper">
+    <header id="header">
+  <h1 id="title">
+    <a href="/">林鹿-Lindeer</a>
+  </h1>
+  <nav>
+    
+    
+      
+      <a class="nav-link" href="/">Home</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+    
+  </nav>
+</header>
+
+    <div id="content">
+      <article id="post-backgroundcolorspan-wrap-text-only" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="headline name">
+      只包裹文本的BackgroundColorSpan
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-12-22T03:06:27.000Z" itemprop="datePublished">Dec 22 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class BorderSpan extends ReplacementSpan &#123;</span><br><span class="line">    private int mWidth;</span><br><span class="line">    private int mBackgroundColor;</span><br><span class="line"></span><br><span class="line">    public BorderSpan(@ColorInt int backgroundColor) &#123;</span><br><span class="line">        mBackgroundColor = backgroundColor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int getSize(@NonNull Paint paint, CharSequence text, int start, int end,</span><br><span class="line">                       Paint.FontMetricsInt fm) &#123;</span><br><span class="line">        mWidth = (int) paint.measureText(text, start, end);</span><br><span class="line">        return mWidth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end,</span><br><span class="line">                     float x, int top, int y, int bottom, @NonNull Paint paint) &#123;</span><br><span class="line">        int color = paint.getColor();</span><br><span class="line">        if (mBackgroundColor != 0) &#123;</span><br><span class="line">            paint.setStyle(Paint.Style.FILL);</span><br><span class="line">            paint.setColor(mBackgroundColor);</span><br><span class="line">            canvas.drawRect(x, top, x + mWidth, bottom, paint);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而发现效果竟然和<code>BackgroundColorSpan</code>一样！显然这里需要在<code>bottom</code>上作文章。这时候需要了解一些字体相关的知识:<br><img src="http://upload-images.jianshu.io/upload_images/19161-3fe6386ac331457b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>并且需要知道的是<code>ascent</code>，<code>descent</code>是相对于baseline的值，所以<code>ascent</code>经常是负值，而对应的类便是<code>Paint.getFontMetrics()</code>的<code>FontMetrics</code>, 在类字段描述中有这样一段:<br><img src="http://upload-images.jianshu.io/upload_images/19161-7577b2fed36609fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以最终用到的是这个字段，<code>draw</code>方法需要知道的重要一点是，这里的<code>y</code>就是字体信息对应的<code>baseline</code>，于是有:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end,</span><br><span class="line">                 float x, int top, int y, int bottom, @NonNull Paint paint) &#123;</span><br><span class="line">    int color = paint.getColor();</span><br><span class="line">    bottom = (int) (y + paint.getFontMetrics().bottom);</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>效果终于达到了:<br><img src="http://upload-images.jianshu.io/upload_images/19161-77992934e1917cc0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>如果不用bottom而用descent呢？<br>大家可以试验下，只是包裹的边界很靠近文本而已。</p>
+
+        
+      
+    </div>
+
+    
+    
+    <div class="article-category">
+      
+        <b>Categories:</b>
+        <a class="article-category-link" href="/categories/Tech/">Tech</a>
+      
+      
+      
+    </div>
+    
+    
+  </div>
+</article>
+
+  
+<nav id="article-nav" class="article-nav">
+  
+    <a href="/2018/04/18/recyclerview-divider-by-viewtype/" id="article-nav-newer" class="article-nav-link-wrap newer">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          RecyclerView区分视图类型的Divider
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/11/10/reuse-layoutmanager/" id="article-nav-older" class="article-nav-link-wrap older">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          重用LayoutManager
+        
+      </div>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+    </div>
+  </div>
+  
+
+
+
+
+<div id="settings-container">
+  <div id="dark-mode">dark</div>
+  <div id="sans-font">sans</div>
+</div>
+<script type="text/javascript">
+let d=document,r=d.documentElement.style,f=r.setProperty.bind(r),l=localStorage,s=l.getItem('s')||(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),n=l.getItem('n'),m=d.getElementById("dark-mode"),b=()=>{f('--bg-color','#fafafa');f('--code-bg-color','#f4f4f4');f('--text-color','#212121');f('--secondary-color','#808080');f('--tertiary-color','#b0b0b0');f('--link-color','#b5c8cf');f('--link-hover-color','#618794');f('--link-bg-color','#dae4e7');f('--selection-color','#dae4e7');m.innerHTML="dark"},c=()=>{f('--bg-color','#212121');f('--code-bg-color','#292929');f('--text-color','#fff');f('--secondary-color','#c0c0c0');f('--tertiary-color','#6e6e6e');f('--link-color','#4d6b75');f('--link-hover-color','#96b1bb');f('--link-bg-color','#5d828e');f('--selection-color','#acc1c9');m.innerHTML="light"},o=d.getElementById("sans-font"),e=()=>{f('--body-stack','"Lora", "Georgia", "Times New Roman", serif');o.innerHTML="sans"},g=()=>{f('--body-stack','"Lato", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Verdana", sans-serif');o.innerHTML="serif"};m.onclick=()=>{if(s==2){s=1;l.setItem('s',s);c()}else{s=2;l.setItem('s',s);b()}};o.onclick=()=>{if(n==2){n=1;l.setItem('n',n);g()}else{n=2;l.setItem('n',n);e()}};if(!s){s=2;l.setItem('s',2)};if(s==1){c()};if(!n){n=2;l.setItem('n',2)};if(n==1){g()};
+</script>
+
+
+
+
+</body>
+</html>
