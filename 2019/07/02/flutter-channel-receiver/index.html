@@ -5,7 +5,6 @@
   
   <title>flutter: 深入通信-接收端 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -45,12 +44,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -76,12 +70,10 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+      
+        <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
 
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通过<a target="_blank" rel="noopener" href="https://juejin.im/post/6844903873950253069#heading-6">PlatformChannel为平台层作为接收端的例子</a>我们已经了解到<code>DartMessenger</code>通过响应接口<code>handleMessageFromDart</code>来把Dart层的消息/操作发送到平台层，而这个方法是<code>PlatformMessageHandler</code>这个接口对象的，持有接口实例的对象正是<code>FlutterJNI</code>。</p>
 <p>作为被动调用的一方，平台层等待消息接收，并不知道消息的来源和用途，所以我们只需要按图索骥，找出调用方，就可追踪接收过程的完整流程。</p>
@@ -96,10 +88,8 @@
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>结合前2篇的调用细节分析（精确到函数），及一些关键类的创建时机做一个简明flutter通道数据通信类图如下：<br>左边是java类,右边是C++类</p>
 <p><img src="https://user-gold-cdn.xitu.io/2019/7/2/16bb0cdbc662c481?w=854&h=1095&f=jpeg&s=91118" alt="Flutter-Channel.jpg"></p>
 
-        
       
     </div>
-
     
     
     <div class="article-category">

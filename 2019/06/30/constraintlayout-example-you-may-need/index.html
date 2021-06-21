@@ -5,7 +5,6 @@
   
   <title>可能是你最需要的ConstraintLayout示例集锦 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -41,7 +40,7 @@
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/6/30/16ba818da63ea10a?w=618&h=142&f=png&s=3283">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/6/30/16ba818d9ee33d43?w=622&h=144&f=png&s=3327">
 <meta property="article:published_time" content="2019-06-30T11:10:21.000Z">
-<meta property="article:modified_time" content="2021-05-11T03:24:00.664Z">
+<meta property="article:modified_time" content="2021-05-11T05:31:19.925Z">
 <meta property="article:author" content="glWesley">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/7/29/16c3e075629a8dd1?w=550&h=126&f=png&s=11686"><meta name="generator" content="Hexo 5.4.0"></head>
@@ -61,12 +60,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -92,12 +86,10 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>以往的关于<code>ConstraintLayout</code>的文章都是讲解它的各种属性的用法，到底这些用法和属性怎么达到效果却说不清，只干巴巴说些属性的作用有什么用，希望直接能上手来用，因此以目标为导向，来看看这个控件如何展示它强大的功能!</p>
+      
+        <p>以往的关于<code>ConstraintLayout</code>的文章都是讲解它的各种属性的用法，到底这些用法和属性怎么达到效果却说不清，只干巴巴说些属性的作用有什么用，希望直接能上手来用，因此以目标为导向，来看看这个控件如何展示它强大的功能!</p>
 <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
 <li>有些效果完全可以用嵌套实现，但却不能仅用一个层次的控件实现，所以可以多用<code>ConstraintLayout</code>进行视图层次的优化, 最好就是一开始直接用<code>ConstraintLayout</code>不用再推到后面</li>
 <li>都以水平方向作为示例，竖直方向不言自明</li>
@@ -148,10 +140,8 @@
 <p>这种效果以往任何控件都无法以属性声明的方式实现，除非配合代码，但现在用<code>ConstraintLayout</code>了之后，爽了一啤!<br>展示<code>ConstraintLayout</code>强大功能的时候到了，上完整代码</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">android.support.constraint.ConstraintLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">&quot;http://schemas.android.com/apk/res-auto&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">&quot;http://schemas.android.com/tools&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/left&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;0dp&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tools:text</span>=<span class="string">&quot;AAAAAAAAAAAAADDDDDDD&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textColor</span>=<span class="string">&quot;#333&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textSize</span>=<span class="string">&quot;30sp&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:maxLines</span>=<span class="string">&quot;1&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:ellipsize</span>=<span class="string">&quot;end&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintBottom_toBottomOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintLeft_toLeftOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintRight_toLeftOf</span>=<span class="string">&quot;@+id/right&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_chainStyle</span>=<span class="string">&quot;packed&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintWidth_default</span>=<span class="string">&quot;wrap&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_bias</span>=<span class="string">&quot;0&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/right&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tools:text</span>=<span class="string">&quot;BBB&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textColor</span>=<span class="string">&quot;#999&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textSize</span>=<span class="string">&quot;20sp&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintBottom_toBottomOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintLeft_toRightOf</span>=<span class="string">&quot;@+id/left&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintRight_toRightOf</span>=<span class="string">&quot;parent&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">android.support.constraint.ConstraintLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-        
       
     </div>
-
     
     
     <div class="article-category">

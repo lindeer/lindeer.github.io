@@ -5,7 +5,6 @@
   
   <title>Archives: 2017 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -39,12 +38,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -73,21 +67,17 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>
-            </p>
-          
-        
+      
+        <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class BorderSpan extends ReplacementSpan &#123;</span><br><span class="line">    private int mWidth;</span><br><span class="line">    private int mBackgroundColor;</span><br><span class="line"></span><br><span class="line">    public BorderSpan(@ColorInt int backgroundColor) &#123;</span><br><span class="line">        mBackgroundColor = backgroundColor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int getSize(@NonNull Paint paint, CharSequence text, int start, int end,</span><br><span class="line">                       Paint.FontMetricsInt fm) &#123;</span><br><span class="line">        mWidth = (int) paint.measureText(text, start, end);</span><br><span class="line">        return mWidth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end,</span><br><span class="line">                     float x, int top, int y, int bottom, @NonNull Paint paint) &#123;</span><br><span class="line">        int color = paint.getColor();</span><br><span class="line">        if (mBackgroundColor != 0) &#123;</span><br><span class="line">            paint.setStyle(Paint.Style.FILL);</span><br><span class="line">            paint.setColor(mBackgroundColor);</span><br><span class="line">            canvas.drawRect(x, top, x + mWidth, bottom, paint);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而发现效果竟然和<code>BackgroundColorSpan</code>一样！显然这里需要在<code>bottom</code>上作文章。这时候需要了解一些字体相关的知识:<br><img src="http://upload-images.jianshu.io/upload_images/19161-3fe6386ac331457b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>并且需要知道的是<code>ascent</code>，<code>descent</code>是相对于baseline的值，所以<code>ascent</code>经常是负值，而对应的类便是<code>Paint.getFontMetrics()</code>的<code>FontMetrics</code>, 在类字段描述中有这样一段:<br><img src="http://upload-images.jianshu.io/upload_images/19161-7577b2fed36609fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以最终用到的是这个字段，<code>draw</code>方法需要知道的重要一点是，这里的<code>y</code>就是字体信息对应的<code>baseline</code>，于是有:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end,</span><br><span class="line">                 float x, int top, int y, int bottom, @NonNull Paint paint) &#123;</span><br><span class="line">    int color = paint.getColor();</span><br><span class="line">    bottom = (int) (y + paint.getFontMetrics().bottom);</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>效果终于达到了:<br><img src="http://upload-images.jianshu.io/upload_images/19161-77992934e1917cc0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>如果不用bottom而用descent呢？<br>大家可以试验下，只是包裹的边界很靠近文本而已。</p>
+
       
     </div>
-
     
     
     
@@ -117,21 +107,21 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.IllegalArgumentException: LayoutManager android.support.v7.widget.GridLayoutManager@33d32b28 is already attached to a RecyclerView:</span><br></pre></td></tr></table></figure>
+<p>我们很自然的想到需要在Viewholder被回收的时候将RecyclerView的LayoutManger置空:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(ViewHolder viewHolder, <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">    viewHolder.recyclerView.setLayoutManager(<span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而是不行的！原因是时机的问题：复用ViewHolder未必需要先将ViewHolder回收，在ViewHolder移出ViewPort后并且有同一类型的ViewHolder需要展示当然直接被绑定。<br>所以我们需要先把LayoutManager中已经绑定的RecyclerView移除，但是找不到方法可以这么做！<br>查看源码LayoutManager持有一个recyclerView的实例，所以只要设置这个实例为空就可以了，而这个recyclerView的成员是包名访问的，只要创建一个同名包的方法就可以了:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">package android.support.v7.widget;</span><br><span class="line">public final class RecyclerViewUtils &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就可以访问LayoutManger的<code>mRecyclerView</code>和它的<code>setRecyclerView</code>方法了。<br>然而直接调用setRecyclerView也是不行的！<br>RecyclerView在和LayoutManger绑定后作了很多设置和状态记录需要将其一并清除，否则在视图上会有紊乱。正确的作法是调用recyclerView的<code>setLayoutManager</code>方法。<br>于是终于有:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">detachLayoutManager</span><span class="params">(LayoutManager manager)</span> </span>&#123;</span><br><span class="line">  RecyclerView old = manager == <span class="keyword">null</span> ? <span class="keyword">null</span> : manager.mRecyclerView;</span><br><span class="line">  <span class="keyword">if</span> (old != <span class="keyword">null</span>) &#123;</span><br><span class="line">    old.setLayoutManager(<span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样在onBind的时候终于可以不用再创建LayoutManger了！而且运行的很好～</p>
+
       
     </div>
-
     
     
     
@@ -161,21 +151,19 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
+<p>自己从头写文本布局是绝无可能的，TextView自己的代码就有几千行，更不要说StaticLayout, DynamicLayout工具类了，有些人提到<code>TextUtils.ellipsize</code>这个方法，但它只是应用在单行情况。于是想到多行文本是由单行组成，让<code>TextUtils.ellipsize</code>测量指定行数次，只在最后一次给出实际测量宽度不就可以了，根据源码写出:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//给定字符串和行数，返回缩略在字符串中的起始位置</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ellipsize</span><span class="params">(TextPaint tp, CharSequence cs, <span class="keyword">int</span> line, <span class="keyword">int</span> lineWidth)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> range[] = &#123;<span class="number">0</span>, cs.length(), <span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">int</span> row = <span class="number">0</span>;</span><br><span class="line">    TextUtils.EllipsizeCallback cb = <span class="keyword">new</span> TextUtils.EllipsizeCallback() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ellipsized</span><span class="params">(<span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">        range[<span class="number">0</span>] = start;  <span class="comment">// 单行文本缩略起始</span></span><br><span class="line">        range[<span class="number">1</span>] = end;    <span class="comment">// 单行文本缩略结束</span></span><br><span class="line">        range[<span class="number">2</span>] += start; <span class="comment">// 整个文本缩略位置</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">float</span> ellipsisWidth = tp.measureText(ELLIPSIS_STRING);</span><br><span class="line">    CharSequence remain = cs.subSequence(range[<span class="number">0</span>], cs.length());</span><br><span class="line">    <span class="comment">// 计算每行容纳的文本子串</span></span><br><span class="line">    <span class="keyword">while</span> (range[<span class="number">0</span>] &lt; range[<span class="number">1</span>] &amp;&amp; row &lt; line) &#123;</span><br><span class="line">      <span class="keyword">float</span> actualWidth = lineWidth + (row == line - <span class="number">1</span> ? <span class="number">0</span> : ellipsisWidth);</span><br><span class="line">      remain = remain.subSequence(range[<span class="number">0</span>], remain.length());</span><br><span class="line">      TextUtils.ellipsize(cs.subSequence(range[<span class="number">2</span>], cs.length()),</span><br><span class="line">          tp, actualWidth, TextUtils.TruncateAt.END, <span class="keyword">false</span>, cb);</span><br><span class="line">      row++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> range[<span class="number">0</span>] &lt; range[<span class="number">1</span>] ? range[<span class="number">2</span>] : -<span class="number">1</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>试验了一下居然很好用，无论是String还是Spannable都可以显示<code>...</code>了！然而问题马上来了，当文本中有连续英文字符时，显示有问题！发现验证的几个示例都是中文，换成英文就容易出问题。于是查原因，发现是因为断行，如果有”jisdfls”在行尾的时候需要在<code>d</code>这个字符处需要折行，虽然它不是合法的英文单词，但是布局会把整个单词都作为下一行的行首，这样之前的方法整个就错误了，因为这个方法根本没有折行的判断逻辑，而折行的判断逻辑很复杂！于是看StaticLayout这个负责文本布局的类，看能不能抽取些方法单独使用，然而这几乎是不可能的。StaticLayout中断行用了不少非开放的类比如<code>MeasuredText</code>，而这些类在不同的API实现还不一样！</p>
+<p>#最终<br>但是办法还是想出来了，就是结合StaticLayout和TextUtils.ellipsize，由StaticLayout负责断行，在指定行数由TextUtils.ellipsize负责判断<code>...</code>的起始位置，避免各种实际的CharSequence类型的处理，这样这个问题终于圆满解决了:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ellipsize</span><span class="params">(TextPaint tp, CharSequence cs, <span class="keyword">int</span> line, <span class="keyword">int</span> lineWidth)</span> </span>&#123;</span><br><span class="line">  StaticLayout layout = <span class="keyword">new</span> StaticLayout(cs, tp, lineWidth, Alignment.ALIGN_NORMAL,</span><br><span class="line">      <span class="number">1.0f</span>, <span class="number">0.0f</span>, <span class="keyword">true</span>);</span><br><span class="line">  <span class="keyword">int</span> count = layout.getLineCount();</span><br><span class="line">  <span class="keyword">int</span> pos = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (count &gt; line) &#123;</span><br><span class="line">    <span class="keyword">int</span> start = layout.getLineStart(line - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> range[] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    TextUtils.ellipsize(cs.subSequence(start, cs.length()), tp, lineWidth,</span><br><span class="line">        TextUtils.TruncateAt.END, <span class="keyword">false</span>, <span class="keyword">new</span> TextUtils.EllipsizeCallback() &#123;</span><br><span class="line">          <span class="meta">@Override</span></span><br><span class="line">          <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ellipsized</span><span class="params">(<span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">            range[<span class="number">0</span>] = start;  <span class="comment">// 单行文本缩略起始</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    pos = start + range[<span class="number">0</span>];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> pos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>整个方法相比原有的操作相当于多了一次布局，然而实现简单轻量，甚至带着几分优雅～<br>#怎样显示在TextView中<br>首先指定宽度从哪来，View在刚inflate出来后是完全没有宽度的，而GlobalLayoutListener会被多次调用，所以方法只能写在onMeasure中，并且有了onMeasure就可以获取TextPait。知道了缩略起始位置就可以把原始字符串中该位置以后的内容替换成<code>...</code>, 再setText().</p>
+
       
     </div>
-
     
     
     
@@ -205,21 +193,25 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用<code>OnItemTouchListener</code>可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通常这样的操作是各个Item持有同一个操作实例， 这就是所谓“外部总控”。</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/06/29/gesturedetector-long-click-could-not-cancel/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用<code>OnItemTouchListener</code>可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通常这样的操作是各个Item持有同一个操作实例， 这就是所谓“外部总控”。</p>
+<p>比如：对一个Item长按，item自己状态变成selected或者checked, 同时外部界面变成编辑界面，Item的操作各不相同，但变成编译界面不区别具体某个Item，这样一个操作不仅涉及Item内部状态数据的变化，也涉及外部操作响应。<code>OnItemTouchListener</code>的好处就是能够统一在recyclerView层进行Touch事件的操作而同时不影响Item内部设置的各个Touch事件。<br><strong>但是</strong>，现实却是另一回事，实践了一下<code>OnItemTouchListener</code>却没有达到预想的目的。</p>
+<p>一般的，利用<code>OnItemTouchListener</code>这个接口需要再用到GestureDetector这个对象。<br>声明了对一个Item的操作接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnItemClickListener</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(RecyclerView.ViewHolder holder)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(RecyclerView.ViewHolder holder)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">startDragging</span><span class="params">(RecyclerView.ViewHolder holder, MotionEvent e)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>GestureDetector.SimpleOnGestureListener</code>的<code>onSingleTapUp</code>响应<code>onItemClick</code>, <code>onLongPress</code>响应<code>onItemLongClick</code>，<code>onDown</code>里外部决定是否可拖拽<code>startDragging</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">RecyclerItemTouchHandler</span> <span class="keyword">implements</span> <span class="title">RecyclerView</span>.<span class="title">OnItemTouchListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> OnItemClickListener mListener;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> GestureDetectorCompat mGestureDetector;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RecyclerItemTouchHandler</span><span class="params">(<span class="keyword">final</span> RecyclerView rv, OnItemClickListener listener)</span> </span>&#123;</span><br><span class="line">        mListener = listener;</span><br><span class="line">        GestureDetector.OnGestureListener gestureListener = <span class="keyword">new</span> GestureDetector.SimpleOnGestureListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onSingleTapUp</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onSingleTapUp&quot;</span>);</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    mListener.onItemClick(rv.getChildViewHolder(child));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.onSingleTapUp(e);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLongPress</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    mListener.onItemLongClick(rv.getChildViewHolder(child));</span><br><span class="line">                &#125;</span><br><span class="line">                android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onLongPress&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onDown</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">                View child = rv.findChildViewUnder(e.getX(), e.getY());</span><br><span class="line">                <span class="keyword">boolean</span> handled = child != <span class="keyword">null</span> &amp;&amp; mListener.startDragging(rv.getChildViewHolder(child), e);</span><br><span class="line">                <span class="keyword">if</span> (handled) &#123;</span><br><span class="line">                    mGestureDetector.setIsLongpressEnabled(<span class="keyword">false</span>);</span><br><span class="line">                    android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onDown&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> handled || <span class="keyword">super</span>.onDown(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        mGestureDetector = <span class="keyword">new</span> GestureDetectorCompat(rv.getContext().getApplicationContext(),</span><br><span class="line">                gestureListener);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(RecyclerView rv, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mGestureDetector.onTouchEvent(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onTouchEvent</span><span class="params">(RecyclerView rv, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        android.util.Log.d(<span class="string">&quot;wesley&quot;</span>, <span class="string">&quot;RecyclerItemTouchHandler.onTouchEvent&quot;</span>);</span><br><span class="line">        mGestureDetector.onTouchEvent(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRequestDisallowInterceptTouchEvent</span><span class="params">(<span class="keyword">boolean</span> disallowIntercept)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">hitTest</span><span class="params">(View view, <span class="keyword">float</span> x, <span class="keyword">float</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> location[] = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        view.getLocationOnScreen(location);</span><br><span class="line">        <span class="keyword">int</span> viewX = location[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> viewY = location[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">return</span> (x &gt; viewX &amp;&amp; x &lt; (viewX + view.getWidth())) &amp;&amp;</span><br><span class="line">                (y &gt; viewY &amp;&amp; y &lt; (viewY + view.getHeight()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>startDragging</code>的实现中利用<code>ItemTouchHelper</code>的来做具体操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">view.addOnItemTouchListener(<span class="keyword">new</span> RecyclerItemTouchHandler(view, <span class="keyword">new</span> RecyclerItemTouchHandler.OnItemClickListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(RecyclerView.ViewHolder holder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mPresenter.isEdit()) &#123;</span><br><span class="line">            <span class="keyword">int</span> pos = holder.getAdapterPosition();</span><br><span class="line">            <span class="keyword">boolean</span> selected = !mPresenter.isSelected(pos);</span><br><span class="line">            mPresenter.selectProvider(pos, selected);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(RecyclerView.ViewHolder holder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mPresenter.setEdit(<span class="keyword">true</span>) &amp;&amp;</span><br><span class="line">                mPresenter.selectProvider(holder.getAdapterPosition(), <span class="keyword">true</span>)) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">startDragging</span><span class="params">(RecyclerView.ViewHolder holder, MotionEvent e)</span> </span>&#123;</span><br><span class="line">        View drag = holder.itemView.findViewById(R.id.drag_icon);</span><br><span class="line">        <span class="keyword">boolean</span> handled = drag != <span class="keyword">null</span> &amp;&amp; RecyclerItemTouchHandler.hitTest(drag,</span><br><span class="line">                e.getRawX(), e.getRawY());</span><br><span class="line">        <span class="keyword">if</span> (handled) &#123;</span><br><span class="line">            mTouchHelper.startDrag(holder);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> handled;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这一切是那么的完美，<strong>然而</strong>实现的效果却是在拖拽的过程中响应了<code>onLongPress</code>的事件！费了半天劲找原因，看了下<code>GestureDetector</code>源码，原来是因为在<code>onDown</code>中并没有取消<code>LONG_PRESS</code>的消息:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> MotionEvent.ACTION_DOWN:</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (mIsLongpressEnabled) &#123;</span><br><span class="line">    mHandler.removeMessages(LONG_PRESS);</span><br><span class="line">    mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()</span><br><span class="line">            + TAP_TIMEOUT + LONGPRESS_TIMEOUT);</span><br><span class="line">&#125;</span><br><span class="line">mHandler.sendEmptyMessageAtTime(SHOW_PRESS, mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);</span><br><span class="line">handled |= mListener.onDown(ev);</span><br><span class="line"><span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>也就是说即使onDown返回<code>true</code>，<code>LONG_PRESS</code>的消息还是发出了。这与我们通常对Touch事件的理解有些不同，为啥要这样写呢？我认为应该改成这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">handled |= mListener.onDown(ev);</span><br><span class="line"><span class="keyword">if</span> (!handled &amp;&amp; mIsLongpressEnabled) &#123;</span><br><span class="line">    mHandler.removeMessages(LONG_PRESS);</span><br><span class="line">    mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()</span><br><span class="line">            + TAP_TIMEOUT + LONGPRESS_TIMEOUT);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>但是不管怎样，因为GestureDetector无法取消长按，没法用这种实现了，最后在外部还是用了<code>View.OnClickListener</code>，<code>View.OnLongClickListener</code>，<code>View.OnTouchListener</code>，显然，在<code>OnTouchListener</code>中由于返回了<code>true</code>, <code>OnLongClickListener</code>无法被响应。但是这种实现有个不好的点是在执行<code>onBindViewHolder</code>时不能在对应的View上再设置或者覆盖其它的Listener了，否则操作失效。</p>
+
       
     </div>
-
     
     
     
@@ -249,21 +241,66 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/06/14/notes-about-c11/#more">read more</a>
-            </p>
-          
-        
+      
+        <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A &#123;</span><br><span class="line">    A* next;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">template&lt;T&gt;</span><br><span class="line">class Container &#123;</span><br><span class="line">    T array[5];</span><br><span class="line">public:</span><br><span class="line">    typedef T container_type;</span><br><span class="line">    T access() &#123;</span><br><span class="line">        T a = array[0];</span><br><span class="line">        a.next = ...;</span><br><span class="line">        return a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Container&lt;A&gt; container;</span><br></pre></td></tr></table></figure>
+<p>只希望Container能访问私有成员, 其它的任何类不可以。直接声明会有编译错误，当然如果把<code>A</code>声明成<code>struct</code>可以解决问题，但是要达到数据封装的目的就必须用到friend关键字:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class A &#123;</span><br><span class="line">    template&lt;typename T&gt;</span><br><span class="line">    friend class Container;</span><br><span class="line">    A* next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这样就可以编译通过了，如果有另一个类<code>B</code>也希望只有<code>Container</code>能访问私有, 那么<code>B</code>也必须作如此的声明, 于是每个特化的模板参数必须都在模板参数的类中作如此的声明否则就有编译错误，而且需要注意<code>typename</code>的情况:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename C&gt;</span><br><span class="line">class Array &#123;</span><br><span class="line">    C c;</span><br><span class="line">public:</span><br><span class="line">    typename C::container_type access() &#123;</span><br><span class="line">        return c.access();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">using ArrayContainer = Array&lt;Container&lt;T&gt;&gt;;</span><br><span class="line"></span><br><span class="line">ArrayContainer&lt;A&gt; array;</span><br><span class="line">A a = array.access();</span><br></pre></td></tr></table></figure>
+<p><code>Container&lt;T&gt;</code>本身作为模板参数传给另一个类<code>Array</code>，并且<code>Array</code>实现了同一个接口方法，这时候A对应的friend类依然是<code>Container</code>而不能是其它的类，否则会有编译错误，这意味着我们需要找到实际操纵A这个类型的类，在它范围内声明friend。<br>实际的应用会比这个复杂，如果作为模板参数类型的A本身也是一个<code>typename</code>那就需要既找到外部操纵类的原始类型,还要找到被操作类型的原始类型。</p>
+<p>#typedef类型的前置声明</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class A;</span><br><span class="line">class B &#123;</span><br><span class="line">public:</span><br><span class="line">    void foo(A::value_type&amp; v);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class A &#123;</span><br><span class="line">    typedef something value_type;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>typedef</code>定义的类型<strong>无法</strong>前置声明。这意味着必须把<code>typedef</code>定义语句头文件include进来, 相关的信赖引用就得都include进来</p>
+<p>#new操作封装(wrapper)<br>在new一个对象的时候希望作跟踪或者其它操作，最好是封装成一个函数，在函数体内部再做其他操作。但是类的构造函数的类型和个数都是不定的，为了实现就必须用到模板类不定参数:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T, typename... ARGS&gt;</span><br><span class="line">static T* alloc(ARGS&amp;&amp;... args) &#123;</span><br><span class="line">    return new T(std::forward&lt;ARGS&gt;(args)...);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">alloc&lt;int&gt;()...</span><br></pre></td></tr></table></figure>
+<p>std::forward<ARGS>表示ARGS的各个类型继续保持传入函数时的类型，以作为T的构造函数参数类型，主要是为了解决右值问题。</p>
+<p>#不定参数函数的封装<br>说到不定参数，怎么样封装一个不定参数的函数？比如想给指定的格式化输出带颜色，但格式化输出的参数是不定参数，这时候不能直接使用printf，而要用vprintf</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;cstdarg&gt;</span><br><span class="line">#include &lt;cstdio&gt;</span><br><span class="line">void log(const char *format, ...) &#123;</span><br><span class="line">    printf(&quot;\033[1;33m&quot;); // 文本以黄色输出</span><br><span class="line">    va_list args;</span><br><span class="line">    va_start(args, format);</span><br><span class="line">    vprintf(format, args);</span><br><span class="line">    va_end(args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>#模板形式的面向接口编程<br>无论C++还是Java典型的面向接口是将接口声明成虚函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//c++</span><br><span class="line">class listener &#123;</span><br><span class="line">    virtual void on_click() = 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">//java</span><br><span class="line">public interface listener &#123;</span><br><span class="line">    void onClick();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是各种子类以继承形式来实现接口，再在运行时找到实际对应的成员函数实体。而现代C++的形式则是利用模板, 在<a href="">友元类是模板类的声明</a>这个例子中充分说明了这种实现方式, 无论是<code>Container</code>还是<code>Array</code>, 都实现了<code>A access()</code>这个函数接口,只是在<code>Array</code>中以<code>typename C::container_type</code>形式假定了模板参数类型提供了真实的操纵类型,所以<code>Container</code>及类似的外部操纵类型都强制提供一个<code>container_type</code>。<br>这个例子中<code>Array</code>也可以写成如下形式:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename C&gt;</span><br><span class="line">class Array: private C &#123;</span><br><span class="line">public:</span><br><span class="line">    typename C::container_type access() &#123;</span><br><span class="line">        return C::access();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>但模板编程有一个原则: 钟爱组合而不是继承, 组合能够提供更大的灵活性。</p>
+<p>#线程存储对象的定义与声明<br>通过<code>thread_local</code>关键字的修饰，可以将一个类型的某一变量声明成线程对象:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class ThreadObject &#123;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">//全局对象的外部初始化</span><br><span class="line">thread_local ThreadObject _t_obj;</span><br></pre></td></tr></table></figure>
+<p>在linux上线程对象用了写时拷贝，在任何一个线程内引用_t_obj时才调用ThreadObject的构造函数。</p>
+<p>现在问题来了，希望这个类只能作为线程对象存在，不能在堆或栈自行定义，也就是说构造函数必须私有。构造函数一旦私有上述代码就会有<code>error: ‘ThreadObject::ThreadObject()’ is private</code>的编译错误。我们即使提供静态函数来返回这个全局变量还是会有编译错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// ThreadObject.hh</span><br><span class="line">class ThreadObject &#123;</span><br><span class="line">    static thread_local ThreadObject _t_obj;</span><br><span class="line">public:</span><br><span class="line">    static ThreadObject&amp; get_obj();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// ThreadObject.cc</span><br><span class="line">static thread_local ThreadObject _t_obj;</span><br><span class="line">ThreadObject &amp;ThreadObject::get_obj() &#123;</span><br><span class="line">    return _t_obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外thread_local<strong>不能</strong>声明在类中！这样写会引起<code>TLS wrapper function for ...</code>的链接错误。<br>怎样才能既把构造函数私有又能静态全局引用？最关键的问题是不同的线程调用返回的是不同的对象？<br>乍看挺棘手的，其实却很简单，利用函数静态变量！<br>加上thread_local修饰，这样它是全局引用的但能够保持构造私有(因为是在类的作用域内)，关键是不同线程调用返回的是不同的对象!</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// ThreadObject.hh</span><br><span class="line">class ThreadObject &#123;</span><br><span class="line">public:</span><br><span class="line">    static ThreadObject&amp; get_obj();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// ThreadObject.cc</span><br><span class="line">ThreadObject &amp;ThreadObject::get_obj() &#123;</span><br><span class="line">    static thread_local ThreadObject _t_obj;</span><br><span class="line">    return _t_obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>#精度不同的时间比较<br>我们知道在<code>chrono</code>中，<code>时间点(time_point)+时间段(duration)=时间点</code>, 并且时间点的精度类型(duration)和时间段的精度类型可以不一致:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;chrono&gt;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    using milli_time = std::chrono::time_point&lt;std::chrono::system_clock, std::chrono::milliseconds&gt;;</span><br><span class="line">    milli_time tp(std::chrono::milliseconds(1));</span><br><span class="line">    std::cout &lt;&lt; &quot;milli_time_since_epoch: &quot; &lt;&lt; tp.time_since_epoch().count() &lt;&lt; std::endl;</span><br><span class="line">    tp += std::chrono::seconds(1);</span><br><span class="line">    std::cout &lt;&lt; &quot;milli_time_since_epoch: &quot; &lt;&lt; tp.time_since_epoch().count() &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    using micro_time = std::chrono::time_point&lt;std::chrono::system_clock, std::chrono::microseconds&gt;;</span><br><span class="line">    micro_time tp2(std::chrono::milliseconds(1));</span><br><span class="line">    std::cout &lt;&lt; &quot;micro_time_since_epoch: &quot; &lt;&lt; tp2.time_since_epoch().count() &lt;&lt; std::endl;</span><br><span class="line">    tp2 += std::chrono::seconds(1);</span><br><span class="line">    std::cout &lt;&lt; &quot;micro_time_since_epoch: &quot; &lt;&lt; tp2.time_since_epoch().count() &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; &quot;compare1: &quot; &lt;&lt; (tp + std::chrono::microseconds(1) &lt; tp2) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    using hour_time = std::chrono::time_point&lt;std::chrono::system_clock, std::chrono::hours&gt;;</span><br><span class="line">    hour_time tp3(std::chrono::hours(0));</span><br><span class="line">    milli_time p(std::chrono::milliseconds(0));</span><br><span class="line">    std::cout &lt;&lt; &quot;compare2: &quot; &lt;&lt; (p + std::chrono::microseconds(1) &lt; tp3) &lt;&lt; std::endl;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>时间的比较有以下结论:</p>
+<ol>
+<li>低精度的时间不能用高精度的时间段初始化。<br><code>milli_time tp(std::chrono::microseconds(1));</code> 编译是错误的</li>
+<li>低精度的时间也不能与高精度的时间段加合。<br><code>milli_time += std::chrono::microseconds(1)</code> 也是不正确的</li>
+<li>精度不同的时间点可以比较。</li>
+<li>精度不同的时间点可与精度的不同的时间段相加并与精度不同的时间点比较。</li>
+</ol>
+<p>#根据类型选择的模板选择<br>很多时候我们需要根据定义的类型自动匹配需要的函数,这时候就要用到模板特化来进行模板的选择。<br>仍以时间精度为例, 比如在某个系统上精度为milliseconds, 而在另一个系统上就保持默认的精度即可, 操作的接口应当是一致的, 所以我们很自然的用<code>typedef</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#ifdef SOME_OS</span><br><span class="line">typedef std::chrono::milliseconds       duration;</span><br><span class="line">#else</span><br><span class="line">typedef std::chrono::system_clock:duration       duration;</span><br><span class="line">#endif</span><br><span class="line">typedef std::chrono::time_point&lt;std::chrono::system_clock, duration&gt;       time_point;</span><br></pre></td></tr></table></figure>
+<p>现在希望一个now()接口返回当前时间点,时间点是我们自定义精度对应的time_point, 如果是默认的精度直接返回<code>std::chrono::system_clock::now</code>避免一个<code>time_point_cast</code>的操作。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">time_point cast_now(T) &#123;</span><br><span class="line">    return std::chrono::time_point_cast&lt;message::duration&gt;(</span><br><span class="line">            sys_clock::now());</span><br><span class="line">&#125;</span><br><span class="line">// 特化的模板函数</span><br><span class="line">inline</span><br><span class="line">sys_clock::time_point cast_now(std::chrono::nanoseconds) &#123;</span><br><span class="line">    return std::chrono::system_clock::now();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">time_point now() &#123;</span><br><span class="line">    return cast_now&lt;duration&gt;(duration(0));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们定义duration为<code>std::chrono::milliseconds</code>则匹配默认的模板函数, 否则调用特化模板函数。当然只是一个例子,如果直接用宏更简单。<br>在不能用宏来区别的情况下, 假如有种情况是<code>std::chrono::milliseconds</code>或者<code>std::chrono::nanoseconds</code>是一个比较大的对象, 我们只是生成一个临时变更进行模板选择,这样会有无谓的开销,不是我们希望的。<br>原理还是按照模板类型匹配,只不过我们用以匹配的类型变成简单类型就可以了, 这里用到<code>std::conditional</code>和<code>std::is_same</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">typedef std::conditional&lt;std::is_same&lt;std::chrono::system_clock::duration,</span><br><span class="line">            duration&gt;::value, void*, int&gt;::type         now_type;</span><br><span class="line"></span><br><span class="line">time_point message::now() &#123;</span><br><span class="line">    return cast_now&lt;now_type&gt;(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果duration是和系统精度一样, 定义now_type为void*, 否则为int, 用now_type来进行模板匹配, 它的临时对象的开销是非常小的。</p>
+<p>#lambda返回类型自动推断<br>一个函数通过一个lambda表达式返回一个模板类对象, 那么能否仅通过lambda表达式自动推断出模板类对象的类型?</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">class Job &#123;</span><br><span class="line">public:</span><br><span class="line">    Job(T&amp;&amp; t) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">Job&lt;T&gt; create_job(std::function&lt;T()&gt;&amp;&amp; f) &#123;</span><br><span class="line">    return Job&lt;T&gt;(f());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main(int argc, char** argv) &#123;</span><br><span class="line">    Job&lt;int&gt; t = create_job([] &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>答案是不行。会有<code>error: no matching function for call to ‘create_job ...</code>的错误, 根本原因是生成的lambda类型根本没带返回值的类型, 所以无法自动推断出返回的<code>Job&lt;T&gt;</code>类型, 只能明确把类型给带上: <code>create_job&lt;int&gt;([] &#123;</code>, ,这实在不美观。<br>通用的解决办法是把整个可调用对象声明成模板参数:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename _Call&gt;</span><br><span class="line">auto create_job(_Call&amp;&amp; call) -&gt; Job&lt;decltype(call())&gt; &#123;</span><br><span class="line">    using T = decltype(call());</span><br><span class="line">    return Job&lt;T&gt;(call());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main(int argc, char **argv) &#123;</span><br><span class="line">    Job&lt;int&gt; j = create_job([] &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然美观了, 可这样写意味着我们没法维持一个固定的接口, 随着各种lambda或者可调用对象的模板特化,会生成大量的<code>create_job</code>对应的代码, 感觉容易引起代码膨胀。</p>
+<p>#避免条件变量唤醒后又阻塞<br>假如多线程的代码在某一点A处于等待状态:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">std::unique_lock&lt;std::mutex&gt; lk(_lock);</span><br><span class="line">_cv.wait(lk)</span><br></pre></td></tr></table></figure>
+<p>另一处B需要改变数据:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">std::lock_guard&lt;std::mutex&gt; lk(_lock);</span><br><span class="line">var = ...;</span><br><span class="line">_cv.notify_one();</span><br></pre></td></tr></table></figure>
+<p>这里有一个细节需要注意:<br>当<code>notify_one</code>执行的时候, 锁是没有释放的, <code>notify_one</code>是立即执行的,也就是说A处代码会立马得到通知,从等待状态唤醒过来, 开始从wait返回, 然而返回需要获取锁,由于锁没有释放, A处代码又立即变为阻塞状态, 等待锁的释放。这样是有比较大的开销的, 我们需要在通知前就释放锁:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    std::lock_guard&lt;std::mutex&gt; lk(_lock);</span><br><span class="line">    var = ...;</span><br><span class="line">&#125;</span><br><span class="line">_cv.notify_one();</span><br></pre></td></tr></table></figure>
+
       
     </div>
-
     
     
     
@@ -293,21 +330,39 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>针对大学英语六级的英语泛读，同样是扇贝的书目见四级<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/23a1a98e54b0">清单</a></p>
-          
-            <p class="article-more-link">
-              <a href="/2017/05/12/books-of-cet6/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>针对大学英语六级的英语泛读，同样是扇贝的书目见四级<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/23a1a98e54b0">清单</a></p>
+<ol>
+<li>虹 - D.H.劳伦斯<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Rainbow-Lawrence-D-H/dp/B0030F1AR4/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%99%B9-D-H-%E5%8A%B3%E4%BC%A6%E6%96%AF/dp/B009D9YKIW/ref=sr_1_1">中文翻译</a> 不知和黑马的<a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%99%B9-D-H-%E5%8A%B3%E4%BC%A6%E6%96%AF/dp/B007K5HY6Q/ref=sr_1_1">翻译</a>哪个更好</li>
+<li>道林格雷的画像 - 奥斯卡·王尔德<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Picture-of-Dorian-Gray-Wilde-Oscar/dp/B011K7G906/ref=sr_1_4">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E9%81%93%E8%BF%9E-%E8%91%9B%E9%9B%B7%E7%9A%84%E7%94%BB%E5%83%8F-%E5%A5%A5%E6%96%AF%E5%8D%A1-%E7%8E%8B%E5%B0%94%E5%BE%B7/dp/B0099MTRAE/ref=sr_1_1">中文翻译</a></li>
+<li>三十九级台阶 - 约翰·巴肯<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Thirty-Nine-Steps-Buchan-John/dp/B00A72W4C8/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E4%B8%89%E5%8D%81%E4%B9%9D%E7%BA%A7%E5%8F%B0%E9%98%B6-%E5%B7%B4%E8%82%AF/dp/B018L8WJ3I/ref=sr_1_3">中文翻译</a></li>
+<li>特务 - 康拉德<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Secret-Agent-a-Simple-Tale/dp/B011K7IBTS/ref=sr_1_15">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E9%97%B4%E8%B0%8D-%E7%BA%A6%E7%91%9F%E5%A4%AB-%E5%BA%B7%E6%8B%89%E5%BE%B7/dp/B01GE21934/ref=sr_1_4">中文翻译</a></li>
+<li>嘉莉妹妹 - 德莱赛<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Sister-Carrie-Dreiser-Theodore/dp/B011K7GPP0/ref=sr_1_2">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%98%89%E8%8E%89%E5%A6%B9%E5%A6%B9-%E8%A5%BF%E5%A5%A5%E5%A4%9A-%E5%BE%B7%E8%8E%B1%E5%A1%9E/dp/B0099MU31Q/ref=sr_1_1">中文翻译</a></li>
+<li>威廉福克纳短篇小说精选<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/kindle-store/dp/B004X7ZNQM/ref=sr_1_41">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%8C%AE%E7%BB%99%E7%88%B1%E7%B1%B3%E4%B8%BD%E7%9A%84%E4%B8%80%E6%9C%B5%E7%8E%AB%E7%91%B0%E8%8A%B1-%E7%9F%AD%E7%AF%87%E5%B0%8F%E8%AF%B4%E9%9B%86-%E5%A8%81%E5%BB%89-%E7%A6%8F%E5%85%8B%E7%BA%B3/dp/B00X3JHCLA/ref=sr_1_1">中文翻译</a></li>
+<li>凯特肖邦短篇小说精选<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Awakening-and-Selected-Short-Stories-Chopin-Kate/dp/B00QKIQFCS/ref=sr_1_1">英文原著</a> 包含了《觉醒》<br>中文翻译 没有找到短篇的翻译</li>
+<li>美女与野兽 - 博蒙夫人<br><a target="_blank" rel="noopener" href="http://www.gutenberg.org/ebooks/7074">英文原著</a><br>中文翻译都是少儿读物，应该都是缩编的</li>
+<li>火星公主 - 埃德加·赖斯·巴勒斯<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/A-Princess-of-Mars-Burroughs-Edgar-Rice/dp/B00A72WJGO/ref=sr_1_2">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%81%AB%E6%98%9F%E5%85%AC%E4%B8%BB-%E7%BE%8E-%E5%9F%83%E5%BE%B7%E5%8A%A0-%E8%B5%96%E6%96%AF-%E5%B7%B4%E5%8B%92%E6%96%AF/dp/B00BLBYJO0/ref=sr_1_1">中文翻译</a></li>
+<li>即临之族 - 爱德华·鲍沃尔·利顿<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Coming-Race-Lytton-Edward-Bulwer-Lytton/dp/B00AIHIHD2/ref=sr_1_1">英文原著</a><br>中文翻译 没有找到The Coming Race的翻译</li>
+<li>月池 - 亚伯拉罕·格雷斯·梅里特<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Moon-Pool-Merritt-Abraham/dp/B000FC24Y8/ref=sr_1_3">英文原著</a><br>中文翻译 没有找到The Moon Pool的翻译</li>
+<li>莫洛博士岛 - 赫伯特·乔治·威尔斯<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Island-of-Doctor-Moreau-Wells-H-G/dp/B00A72W61C/ref=sr_1_7">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%A8%81%E5%B0%94%E6%96%AF%E7%BB%8F%E5%85%B8%E7%A7%91%E5%B9%BB%E4%B8%9B%E4%B9%A6-%E8%B5%AB%E4%BC%AF%E7%89%B9-%E4%B9%94%E6%B2%BB-%E5%A8%81%E5%B0%94%E6%96%AF/dp/B0183HDRJ2/ref=sr_1_1">中文翻译</a> 其中一册《摩罗博士的岛》</li>
+<li>隐形人 - 赫伯特·乔治·威尔斯<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Invisible-Man-Wells-H-G/dp/B011K7H1SK/ref=sr_1_3">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E9%9A%90%E8%BA%AB%E4%BA%BA-%E5%A8%81%E5%B0%94%E6%96%AF/dp/B00W70FPQA/ref=sr_1_1">中文翻译</a></li>
+<li>巴斯克维尔的猎犬 - 阿瑟·柯南·道尔<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B%E5%B7%B4%E6%96%AF%E5%85%8B%E7%BB%B4%E5%B0%94%E7%9A%84%E7%8C%8E%E7%8A%AC-%E9%98%BF%E7%91%9F-%E6%9F%AF%E5%8D%97-%E9%81%93%E5%B0%94/dp/B01FXFVSFC/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B5-%E5%B7%B4%E6%96%AF%E5%85%8B%E7%BB%B4%E5%B0%94%E7%9A%84%E7%8C%8E%E7%8A%AC-%E6%9F%AF%E5%8D%97%E9%81%93%E5%B0%94/dp/B00L0VVN68/ref=sr_1_1">中文翻译</a></li>
+<li>归来记 - 阿瑟·柯南·道尔<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%AD%97%E9%87%8C%E8%A1%8C%E9%97%B4%E8%8B%B1%E6%96%87%E7%BB%8F%E5%85%B8053-%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B%E5%BD%92%E6%9D%A5%E8%AE%B0-%E9%98%BF%E7%91%9F-%E6%9F%AF%E5%8D%97-%E9%81%93%E5%B0%94/dp/B017D7WFQO/ref=sr_1_4">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B6-%E5%BD%92%E6%9D%A5%E8%AE%B0-%E6%9F%AF%E5%8D%97%E9%81%93%E5%B0%94/dp/B00L0VVNO0/ref=sr_1_7">中文翻译</a></li>
+<li>血字的研究 - 阿瑟·柯南·道尔<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B%E8%A1%80%E5%AD%97%E7%9A%84%E7%A0%94%E7%A9%B6-%E4%BA%9A%E7%91%9F-%E6%9F%AF%E5%8D%97-%E9%81%93%E5%B0%94/dp/B01G6TM6S2/ref=sr_1_2">英文原著</a> <a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%A1%80%E5%AD%97%E7%9A%84%E7%A0%94%E7%A9%B6-%E5%9B%9B%E7%AD%BE%E5%90%8D-%E8%8B%B1-%E9%98%BF%E7%91%9F-%E6%9F%AF%E5%8D%97-%E9%81%93%E5%B0%94/dp/B00BMFY3UK/ref=sr_1_1">外研社</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%A6%8F%E5%B0%94%E6%91%A9%E6%96%AF%E6%8E%A2%E6%A1%88%E5%85%A8%E9%9B%86%E4%B9%8B1-%E8%A1%80%E5%AD%97%E7%9A%84%E7%A0%94%E7%A9%B6-%E6%9F%AF%E5%8D%97%E9%81%93%E5%B0%94/dp/B00L0VVM5K/ref=sr_1_3">中文翻译</a></li>
+<li>海底两万里 - 儒勒·凡尔纳<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Twenty-Thousand-Leagues-Under-The-Sea-with-Biographical-Introduction-Vernes-Jules/dp/B000FC1CAU/ref=sr_1_6">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%B5%B7%E5%BA%95%E4%B8%A4%E4%B8%87%E9%87%8C-%E5%84%92%E5%B0%94-%E5%87%A1%E5%B0%94%E7%BA%B3/dp/B009TQATXY/ref=sr_1_1">中文翻译</a></li>
+<li>八十天环游地球 - 儒勒·凡尔纳<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Around-the-World-in-80-Days-Verne-Jules/dp/B00A72W6GW/ref=sr_1_2">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%85%AB%E5%8D%81%E5%A4%A9%E7%8E%AF%E6%B8%B8%E5%9C%B0%E7%90%83-%E5%84%92%E5%B0%94-%E5%87%A1%E5%B0%94%E7%BA%B3/dp/B009TQAU4M/ref=sr_1_1">中文翻译</a></li>
+<li>汤姆·索亚历险记 - 马克·吐温<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Adventures-of-Tom-Sawyer-Twain-Mark/dp/B018X13N0Q/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%B1%A4%E5%A7%86-%E7%B4%A2%E4%BA%9A%E5%8E%86%E9%99%A9%E8%AE%B0-%E9%A9%AC%E5%85%8B-%E5%90%90%E6%B8%A9/dp/B009TQASW6/ref=sr_1_5">中文翻译</a></li>
+<li>剪亮的灯盏 - 欧·亨利短篇小说集<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Trimmed-Lamp-and-other-Stories-of-the-Four-Million-Henry-O/dp/B00A72W9I2/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%AC%A7-%E4%BA%A8%E5%88%A9%E7%9F%AD%E7%AF%87%E5%B0%8F%E8%AF%B4%E9%80%89-%E6%AC%A7-%E4%BA%A8%E5%88%A9/dp/B00GXZV5ZK/ref=sr_1_4">中文翻译</a></li>
+<li>四百万 - 欧·亨利短篇小说集<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Four-Million-Henry-O/dp/B011K7GSAC/ref=sr_1_24">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%AC%A7-%E4%BA%A8%E5%88%A9%E7%9F%AD%E7%AF%87%E5%B0%8F%E8%AF%B4%E9%80%89-%E6%AC%A7-%E4%BA%A8%E5%88%A9/dp/B00GXZV5ZK/ref=sr_1_4">中文翻译</a></li>
+<li>契诃夫短篇小说精选 - 安东·帕夫洛维奇·契诃夫<br>都是外语。。。</li>
+<li>悠游度过一天24小时 - 阿诺德·贝内特<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%82%A0%E6%B8%B8%E5%BA%A6%E8%BF%87%E4%B8%80%E5%A4%A9%E7%9A%8424%E5%B0%8F%E6%97%B6-%E8%8B%B1-%E9%98%BF%E8%AF%BA%E5%BE%B7-%E6%9C%AC%E6%B6%85%E7%89%B9/dp/B008N4P8MK/ref=sr_1_1">中英合集</a></li>
+<li>老人与海 - 海明威<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%80%81%E4%BA%BA%E4%B8%8E%E6%B5%B7-%E7%BE%8E-%E6%B5%B7%E6%98%8E%E5%A8%81/dp/B008N4P6HM/ref=sr_1_5">中英合集</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%8B%B1%E6%96%87%E5%8E%9F%E7%89%88-%E8%80%81%E4%BA%BA%E4%B8%8E%E6%B5%B7-The-Old-Man-and-the-Sea-%E6%8C%AF%E5%AE%87%E8%8B%B1%E8%AF%AD-Ernest-Miller-Hemingway/dp/B00SKG8KKI/ref=sr_1_6">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%80%81%E4%BA%BA%E4%B8%8E%E6%B5%B7-%E6%AC%A7%E5%86%85%E6%96%AF%E7%89%B9-%E6%B5%B7%E6%98%8E%E5%A8%81/dp/B0099MT9RU/ref=sr_1_11">中文翻译</a></li>
+</ol>
+
       
     </div>
-
     
     
     
@@ -337,21 +392,74 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>从扇贝上的难度分类中搜集的书单，同时自己做一个备忘，可以继续补充。<br>附上能找到的最便宜的电子书的链接。<br>中文的翻译参差不齐，尽量以译林译文为主，很多出版社都是糊弄鬼，参考看吧</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/05/12/books-of-cet4/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>从扇贝上的难度分类中搜集的书单，同时自己做一个备忘，可以继续补充。<br>附上能找到的最便宜的电子书的链接。<br>中文的翻译参差不齐，尽量以译林译文为主，很多出版社都是糊弄鬼，参考看吧</p>
+<ol>
+<li><p>奥兹国经典童话（14部）</p>
+</li>
+<li><p>《绿野仙踪》</p>
+</li>
+<li><p>《奥兹国仙境》</p>
+</li>
+<li><p>《奥兹玛公主》</p>
+</li>
+<li><p>《桃乐莤与魔法师》</p>
+</li>
+<li><p>《通向奥兹国的路》</p>
+</li>
+<li><p>《翡翠城》</p>
+</li>
+<li><p>《碎布姑娘》</p>
+</li>
+<li><p>《滴答人》</p>
+</li>
+<li><p>《稻草人》</p>
+</li>
+<li><p>《林基廷克国王》</p>
+</li>
+<li><p>《奥兹公主失踪记》</p>
+</li>
+<li><p>《铁皮人》</p>
+</li>
+<li><p>《奥兹国的魔法》</p>
+</li>
+<li><p>《奥兹国的格林达》<br><a target="_blank" rel="noopener" href="http://www.gutenberg.org/ebooks/54">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%A5%A5%E5%85%B9%E5%9B%BD%E4%BB%99%E5%A2%83%E5%A5%87%E9%81%87%E8%AE%B0-%E7%BE%8E-%E5%BC%97%E6%8B%89%E5%85%8B-%E9%B2%8D%E5%A7%86/dp/B01MCVAEZZ/ref=tmm_kin_title_0?_encoding=UTF8&qid=1494554779&sr=1-10">中文翻译</a></p>
+</li>
+<li><p>纳尼亚传奇（7部）</p>
+</li>
+<li><p>狮子、女巫和魔衣橱</p>
+</li>
+<li><p>凯斯宾王子</p>
+</li>
+<li><p>黎明踏浪号</p>
+</li>
+<li><p>银椅</p>
+</li>
+<li><p>能言马与男孩</p>
+</li>
+<li><p>魔法师的外甥</p>
+</li>
+<li><p>最后一战<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/gp/product/B00J7DZ524/ref=pd_cp_351_2?ie=UTF8&psc=1&refRID=0MWGY2CEX0X4BBSBFA6H">中英双语全集</a></p>
+</li>
+<li><p>黑骏马<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Black-Beauty/dp/B011K7I2FG/ref=sr_1_1?s=digital-text&ie=UTF8&qid=1494556060&sr=1-1&keywords=black+beauty">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E9%BB%91%E9%AA%8F%E9%A9%AC-%E5%AE%89%E5%A8%9C-%E5%A1%9E%E7%BB%B4%E5%B0%94/dp/B0107RZQ7C/ref=sr_1_4">中文翻译</a></p>
+</li>
+<li><p>小公主<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/A-Little-Princess-being-the-whole-story-of-Sara-Crewe-now-told-for-the-first-time-Burnett-Frances-Hodgson/dp/B018X13YFU">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%B0%8F%E5%85%AC%E4%B8%BB-%E7%BE%8E%E5%9B%BD-F-H-%E4%BC%AF%E5%86%85%E7%89%B9/dp/B00KGP65SU/ref=sr_1_3">中文翻译</a></p>
+</li>
+<li><p>爱丽丝漫游仙境<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Through-the-Looking-Glass-Carroll-Lewis/dp/B00A72W7RK/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%88%B1%E4%B8%BD%E4%B8%9D%E6%BC%AB%E6%B8%B8%E5%A5%87%E5%A2%83%E8%AE%B0-Lewis-Carroll/dp/B01BWCZ4IW/ref=sr_1_2">中文翻译</a></p>
+</li>
+<li><p>绿山墙的安妮<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%BB%BF%E5%B1%B1%E5%A2%99%E7%9A%84%E5%AE%89%E5%A6%AE-ANNE-OF-GREEN-GABLES-%E9%9C%B2%E8%A5%BF-M-%E8%92%99%E5%93%A5%E9%A9%AC%E5%88%A9/dp/B011QG4RE6/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%BB%BF%E5%B1%B1%E5%A2%99%E7%9A%84%E5%AE%89%E5%A6%AE-%E9%9C%B2%E8%A5%BF-%E8%8E%AB%E5%BE%B7-%E8%92%99%E5%93%A5%E9%A9%AC%E5%88%A9/dp/B00GMZKYR6/ref=sr_1_1">中文翻译</a></p>
+</li>
+<li><p>野性的呼唤<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Call-of-the-Wild-London-Jack/dp/B00A72W6QW/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/gp/product/B015W3NXBC/ref=pd_cp_351_1">中文翻译</a></p>
+</li>
+<li><p>海明威短篇小说精选</p>
+</li>
+</ol>
+<p><strong>选本和扇贝上的可能不一致，有时间再列文章清单</strong><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/dp/B071WLMNXX/ref=sr_1_1?__mk_zh_CN=%E4%BA%9A%E9%A9%AC%E9%80%8A%E7%BD%91%E7%AB%99&keywords=%E6%B5%B7%E6%98%8E%E5%A8%81%E7%9F%AD%E7%AF%87%E5%B0%8F%E8%AF%B4&qid=1558514377&s=digital-text&sr=1-1">中英合集</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/gp/product/B071WLMNXX/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&psc=1">英文原著</a> 还有<a target="_blank" rel="noopener" href="https://www.amazon.cn/gp/product/B07719L7ZX/ref=ppx_yo_dt_b_d_asin_title_o06?ie=UTF8&psc=1">这本</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%B5%B7%E6%98%8E%E5%A8%81%E7%9F%AD%E7%AF%87%E5%B0%8F%E8%AF%B4%E5%85%A8%E9%9B%86-%E6%AC%A7%E5%86%85%E6%96%AF%E7%89%B9-%E6%B5%B7%E6%98%8E%E5%A8%81/dp/B00EALOID0/ref=sr_1_12">中文翻译</a><br>9. 奥斯卡王尔德短篇童话精选<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%BF%AB%E4%B9%90%E7%8E%8B%E5%AD%90-%E7%8E%8B%E5%B0%94%E5%BE%B7%E7%AB%A5%E8%AF%9D%E6%95%85%E4%BA%8B%E5%85%A8%E9%9B%86-%E5%A5%A5%E6%96%AF%E5%8D%A1%E2%80%A2%E7%8E%8B%E5%B0%94%E5%BE%B7/dp/B00877TK18/ref=sr_1_40">中英合集</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Complete-Fairy-Tales-of-Oscar-Wilde-Wilde-Oscar/dp/B000FC22W2/ref=sr_1_21">英文原著</a>, <a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%A4%9C%E8%8E%BA%E4%B8%8E%E7%8E%AB%E7%91%B0-%E7%8E%8B%E5%B0%94%E5%BE%B7%E7%AB%A5%E8%AF%9D%E9%9B%86-%E5%A5%A5%E6%96%AF%E5%8D%A1-%E7%8E%8B%E5%B0%94%E5%BE%B7/dp/B008H0BRUM/ref=sr_1_24">这部</a>也不错<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%8E%8B%E5%B0%94%E5%BE%B7%E7%AB%A5%E8%AF%9D-%E5%A5%A5%E6%96%AF%E5%8D%A1-%E7%8E%8B%E5%B0%94%E5%BE%B7/dp/B01D2EXKHA/ref=sr_1_26">中文翻译</a><br>10. 地心游记<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Journey-to-the-Center-of-the-Earth-Verne-Jules/dp/B008TVM3RK/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%9C%B0%E5%BF%83%E6%B8%B8%E8%AE%B0-%E5%84%92%E5%B0%94-%E5%87%A1%E5%B0%94%E7%BA%B3/dp/B00CCWKIZG/ref=sr_1_1">中文翻译</a><br>11. 歌剧魅影<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Phantom-of-the-Opera/dp/B011K7I6HA/ref=sr_1_3">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%89%A7%E9%99%A2%E9%AD%85%E5%BD%B1-%E5%8A%A0%E6%96%AF%E9%80%9A-%E5%8B%92%E9%B2%81/dp/B00A4SBW6O/ref=sr_1_1">中文翻译</a><br>12. 时间机器<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%97%B6%E9%97%B4%E6%9C%BA%E5%99%A8-%E8%8B%B1-%E5%A8%81%E5%B0%94%E6%96%AF/dp/B008N4PFMS/ref=sr_1_1">中英合集</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/The-Time-Machine-Wells-H-G/dp/B004XVQ73G/ref=sr_1_4">英文原著</a><br>13. 廊桥遗梦<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%BB%8A%E6%A1%A5%E9%81%97%E6%A2%A6-%E7%BE%8E%E5%9B%BD-%E7%BD%97%E4%BC%AF%E7%89%B9-%E8%A9%B9%E5%A7%86%E6%96%AF-%E6%B2%83%E5%8B%92/dp/B00MVIAB8A/ref=sr_1_1">中英合集</a><br>14. 宇宙简史：起源与归宿<br>英文原著 没找到。。。<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/kindle-store/dp/B013AGIOR6/ref=sr_1_1">中文翻译</a><br>15. 假如给我三天光明<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E8%8B%B1%E6%96%87%E5%8E%9F%E7%89%88-%E5%81%87%E5%A6%82%E7%BB%99%E6%88%91%E4%B8%89%E5%A4%A9%E5%85%89%E6%98%8E-THREE-DAYS-TO-SEE-%E6%8C%AF%E5%AE%87%E8%8B%B1%E8%AF%AD-%E5%87%AF%E5%8B%92/dp/B00TIQXFVS/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E5%81%87%E5%A6%82%E7%BB%99%E6%88%91%E4%B8%89%E5%A4%A9%E5%85%89%E6%98%8E-%E6%B5%B7%E4%BC%A6-%E5%87%AF%E5%8B%92/dp/B00GMZKYYY/ref=sr_1_1">中文翻译</a><br>16. 月亮与六便士<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/Moon-and-Sixpence-Maugham-W-Somerset/dp/B00A72W6TE/ref=sr_1_1">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E6%9C%88%E4%BA%AE%E5%92%8C%E5%85%AD%E4%BE%BF%E5%A3%AB-%E5%A8%81%E5%BB%89-%E8%90%A8%E9%BB%98%E8%B5%9B%E7%89%B9-%E6%AF%9B%E5%A7%86/dp/B01AVWRE50/ref=sr_1_2">中文翻译</a><br>17. 人类的故事<br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E7%BE%8E%E5%9B%BD%E5%AD%A6%E7%94%9F%E4%BA%BA%E7%B1%BB%E5%8F%B2-%E4%BA%A8%E5%BE%B7%E9%87%8C%E5%85%8B-%E5%A8%81%E5%BB%89-%E6%88%BF%E9%BE%99/dp/B00CHJQKIS/ref=sr_1_2">英文原著</a><br><a target="_blank" rel="noopener" href="https://www.amazon.cn/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%95%85%E4%BA%8B-%E6%88%BF%E9%BE%99%E8%91%97-%E7%99%BD%E9%A9%AC%E8%AF%91/dp/B012CFJ09W/ref=sr_1_1">中文翻译</a></p>
+
       
     </div>
-
     
     
     
@@ -381,21 +489,18 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>是的，徐晓冬已经受伤了，受的是内伤。现在已经完全是各说各话，一边要打假太极一边说你污辱传统文化, 眼见着舆论攻势都能把徐给棒杀了。先不管能不能打，那些掌门们是绝不可能痛痛快快干脆利落的正面交锋的，永远像躲藏在暗箱角落里的琐屑小人抱着把混水搅烂的念头给你栽一堆没头没脑的标签，”不爱国!污蔑解放军!”在中国，说你人有问题那一切问题都有了答案，中国人热爱好人，只支持好人, 我是不是好人不要紧，只要说你不是好人就能反衬我是好人。</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/05/04/about-xuxiaodong/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>是的，徐晓冬已经受伤了，受的是内伤。现在已经完全是各说各话，一边要打假太极一边说你污辱传统文化, 眼见着舆论攻势都能把徐给棒杀了。先不管能不能打，那些掌门们是绝不可能痛痛快快干脆利落的正面交锋的，永远像躲藏在暗箱角落里的琐屑小人抱着把混水搅烂的念头给你栽一堆没头没脑的标签，”不爱国!污蔑解放军!”在中国，说你人有问题那一切问题都有了答案，中国人热爱好人，只支持好人, 我是不是好人不要紧，只要说你不是好人就能反衬我是好人。</p>
+<p>这帮乌龟王八把中国传统文化吼的震天响，到底还是不敢应战的。也只能打着传统文化的旗子， 这帮骗子真以为自己是什么东西，觉得自己就是传统文化？自己输了就是传统文化输了？不管他们是不是真信，一些围观群众已经这么信了，到底是几十年的骗子，没两下嘴上功夫能让这么多人一个个热血沸腾心系天下?</p>
+<p>仔细想想他们自己真的会信么，那帮正练着太极的人会认为自己上了当么，会在这么多人面前承认自己是个被骗的团团转的大傻瓜？别开玩笑了，钱丢事小面子事大，只要你搞不起戳不穿那我就是安全的。于是脏水诽谤污你，翻箱倒柜扒你，搞臭了你，至于传统文化是个什么东西根本是个屁, 应战不应战是个屁！</p>
+<p>他们会信传统文化会被徐的一拳打的像毁于蚁穴的千里之堤一样么？传统文化这么脆弱？这么脆弱文化还是文化么，要这种脆弱的文化有个什么鸟蛋作用？不管怎样肯定有人揣着明白装糊涂，不这样他们赖以维持的生活衣食或是精神信念都会遭受重大打击，那么与其被动挨打还不如主动出击，让这种情况永远不要发生，这样还能避免皮肉上的真正挨打。</p>
+<p>被骗的绝不会承认自己受了骗，于是一起和骗子合起伙来叫骂，捍卫着他们说不清道不明的传统文化。这是真正的口诛笔伐，要是他们一个个和徐面对面，这帮龟孙子保管一个屁也放不出来，而且往往还会息事宁人, 但是在无人眼见的网上，他们像一滩滩散发着腐臭痞赖气息的烂泥，说什么都被熏的一脸眩晕。没有一个具体的对象，就好像跟着空气对打一样，你打打不着骂骂不赢。</p>
+<p>拳脚相加拳打脚踢只是外伤，在中国，恶言相向众口铄金才是最大伤害，言语的利刃比血肉的拳头厉害多了。</p>
+
       
     </div>
-
     
     
     
@@ -425,21 +530,14 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>讲真，受不了这种节日就要例行公事一样送鲜花送礼物订餐厅的套路。就像看着黑压压的人群排队上香，仅仅就是因为大家“都”这么做，你也“应该”这么做，压根就感受不到任何情绪上的愉悦。从学生时代起，看着千篇一律的送花点蜡，虽然跟我屁毛关系没有，总是感觉尴尬的很。那些表白，虽然旁人不可能知道全部内容，但不用猜大多也是贫乏无聊空洞滥情的套话。浪漫在他们的眼中不是一种独特的温馨的感受，而是一种程式的规范的动作，不是属于一个人的印记而是捆绑一帮人的比较。所以真正的浪漫其实是非常稀有罕见的，大部分人归根结底仅仅是搭伙过日子，恰恰是如此难得和少见，人们通过简化这个过程来表征爱情的获得。如此一想，这些仪式性的东西也未尝不可呀，这么做一点也没错呀，这就是浪漫呀，那浪漫究竟是个什么也模糊了不重要了。那个一直在等着对的人的人，最后不也是希望去过凯宾斯基么？</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/02/15/on-the-valentines-day/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>讲真，受不了这种节日就要例行公事一样送鲜花送礼物订餐厅的套路。就像看着黑压压的人群排队上香，仅仅就是因为大家“都”这么做，你也“应该”这么做，压根就感受不到任何情绪上的愉悦。从学生时代起，看着千篇一律的送花点蜡，虽然跟我屁毛关系没有，总是感觉尴尬的很。那些表白，虽然旁人不可能知道全部内容，但不用猜大多也是贫乏无聊空洞滥情的套话。浪漫在他们的眼中不是一种独特的温馨的感受，而是一种程式的规范的动作，不是属于一个人的印记而是捆绑一帮人的比较。所以真正的浪漫其实是非常稀有罕见的，大部分人归根结底仅仅是搭伙过日子，恰恰是如此难得和少见，人们通过简化这个过程来表征爱情的获得。如此一想，这些仪式性的东西也未尝不可呀，这么做一点也没错呀，这就是浪漫呀，那浪漫究竟是个什么也模糊了不重要了。那个一直在等着对的人的人，最后不也是希望去过凯宾斯基么？</p>
+<p>现在终于明白，浪漫大约只是众目睽睽之下的一种样式表演。通过这种表演，双方确信了爱情的互相拥有。除非双方真正超脱荣辱并且意志坚定，对抗这种表演简直就是对抗文化。走兽，就是这种浪漫文化的典型代表，花语啦星座啦，什么时间应该做什么，是该送巧克力还是送苹果，是该喝咖啡还是吃西餐，按部就班一板一眼的执行着对浪漫的诠释。最开始我完全无法接受，现在学还学不会……我不明白为什么这么讨厌这种事，一到这种节点真是浑身不自在，想到以后也得像个木偶一样做这些事，就觉得烦不胜烦，但为了得到一个女人，必须向现实低头。因为有着一样想法的女孩太少了，碰到的概率几乎为0，碰到了还要愿意正确的交流出来，所以根本不可能发生。人们一旦做着不意愿的事，就容易把事情搞砸，这大约是为啥这么长时间找不到吧——一个老男三十生日的情人节感悟……</p>
+
       
     </div>
-
     
     
     
@@ -469,21 +567,13 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>看了几集众人交口称赞的《王冠》，并没有他们说的那么好看。故事没有因为离现实更近更吸引人，难道就满足了普罗大众对皇家贵族女王公主的猎奇么？一个个事件排列没有线索，看着有点流水账，有那么一两个故事高潮似乎快要爆发，可是最终还是波澜不惊后劲乏力。言语缝隙间填充些王权高贵之类的浮夸的词语，至于秘书随从之类的事看着琐碎冗长无聊，那个年轻却被撞死的角色更是让人大跌眼镜，这也太国产片了吧，让人感觉很粗制滥造，首相感冒那事情节也特别生硬。20世纪后半叶是个动荡的多事之秋，美苏争霸阵营对峙冷战铁幕热战连绵导弹危机种族民权民族独立红色恐怖宗教冲突苏东剧变极端主义，如果能够以一国元首视角展现大时代背景下一些近现代政治人物的性格风格作派命运就太棒了，显然这部片子并不具备这种宏阔视野，它唯一能引人兴奋的猜想大概就是谁以怎样的故事来演戴安娜王妃……</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/01/10/watching-the-crown/#more">read more</a>
-            </p>
-          
-        
+      
+        <p>看了几集众人交口称赞的《王冠》，并没有他们说的那么好看。故事没有因为离现实更近更吸引人，难道就满足了普罗大众对皇家贵族女王公主的猎奇么？一个个事件排列没有线索，看着有点流水账，有那么一两个故事高潮似乎快要爆发，可是最终还是波澜不惊后劲乏力。言语缝隙间填充些王权高贵之类的浮夸的词语，至于秘书随从之类的事看着琐碎冗长无聊，那个年轻却被撞死的角色更是让人大跌眼镜，这也太国产片了吧，让人感觉很粗制滥造，首相感冒那事情节也特别生硬。20世纪后半叶是个动荡的多事之秋，美苏争霸阵营对峙冷战铁幕热战连绵导弹危机种族民权民族独立红色恐怖宗教冲突苏东剧变极端主义，如果能够以一国元首视角展现大时代背景下一些近现代政治人物的性格风格作派命运就太棒了，显然这部片子并不具备这种宏阔视野，它唯一能引人兴奋的猜想大概就是谁以怎样的故事来演戴安娜王妃……</p>
+
       
     </div>
-
     
     
     

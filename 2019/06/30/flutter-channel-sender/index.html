@@ -5,7 +5,6 @@
   
   <title>flutter: 深入通信-发送端 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -43,12 +42,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -74,12 +68,10 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+      
+        <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
 
 <p>站在平台端的视角对通道有一个通观概览的认知之后就需要深入内里对通信机制需要一个深入剖析了，之前已经了解到<code>FlutterJNI.dispatchPlatformMessage</code>是平台层（java）发送数据调用的最后一层，那么继续这个调用序列：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">FluttereJNI.dispatchPlatformMessage</span><br><span class="line">  nativeDispatchPlatformMessage(FlutterJNI.java)</span><br><span class="line">    DispatchPlatformMessage(platform_view_android_jni.cc:56)</span><br><span class="line">      AndroidShellHolder::GetPlatformView(platform_view_android_jni.cc:421)</span><br><span class="line">      PlatformViewAndroid::DispatchPlatformMessage(platform_view_android.cc:92)</span><br><span class="line">        TaskRunners::GetPlatformTaskRunner =&gt; PlatformView::task_runners_</span><br><span class="line">        new PlatformMessageResponseAndroid()</span><br><span class="line">        new flutter::PlatformMessage(name, message, response)</span><br><span class="line">        PlatformView::DispatchPlatformMessage</span><br><span class="line">          PlatformView::Delegate::OnPlatformViewDispatchPlatformMessage() =&gt; Shell::On..()</span><br><span class="line">            ::GetUITaskRunner</span><br><span class="line">            TaskRunner::PostTask</span><br><span class="line">            ...Engine::DispatchPlatformMessage</span><br></pre></td></tr></table></figure>
@@ -105,10 +97,8 @@
 <h3 id="创建AndroidShellHolder流程"><a href="#创建AndroidShellHolder流程" class="headerlink" title="创建AndroidShellHolder流程:"></a>创建<code>AndroidShellHolder</code>流程:</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">FlutterActivity.onCreate (FlutterActivity.java:89)</span><br><span class="line">  FlutterActivityDelegate.onCreate() (FlutterActivityDelegate.java:160)</span><br><span class="line">    FlutterView.FlutterView() (FlutterView.java:139)</span><br><span class="line">      new FlutterNativeView(Context) (FlutterNativeView.java:47)</span><br><span class="line">        FlutterNativeView.attach(this, false) (FlutterNativeView.java:165)</span><br><span class="line">          FlutterJNI.attachToNative (FlutterJNI.java:423)</span><br><span class="line">            AttachJNI(platform_view_android_jni.cc:149)</span><br><span class="line">              java_object(env, flutterJNI)</span><br><span class="line">              std::make_unique&lt;AndroidShellHolder&gt;(java_object)</span><br><span class="line">              AndroidShellHolder::IsValid</span><br><span class="line">              reinterpret_cast&lt;jlong&gt;</span><br></pre></td></tr></table></figure>
 <p>比较容易发现创建的时机正是<code>FlutterJNI</code>绑定到<code>FlutterNativeView</code>, 而<code>FlutterJNI</code>的成员<code>nativePlatformViewId</code>代表的正是C++<code>AndroidShellHolder</code>对象，在这个过程中重要对象如<code>Shell</code>和<code>Engine</code>相继被创建。<br>所以每次发送数据(或者平台调用dart方法)都是<code>FlutterJNI</code>对象将成员<code>nativePlatformViewId</code>传入c++层，转成<code>AndroidShellHolder</code>对象通过<code>Engine</code>最终调用到dart层</p>
 
-        
       
     </div>
-
     
     
     <div class="article-category">

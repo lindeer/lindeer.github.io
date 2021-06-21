@@ -5,7 +5,6 @@
   
   <title>动态切换的动态代理 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -43,12 +42,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -74,12 +68,10 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br>先理解前提条件和程序上下文, 譬如有如下接口:</p>
+      
+        <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br>先理解前提条件和程序上下文, 譬如有如下接口:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Responder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onMethod1</span><span class="params">(String s)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">onMethod2</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onMethod3</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们将接口的一个实例<code>Responder r1</code>传入了一个别的类<code>p1 = new Presenter(r1)</code>(或者外部SDK), 在运行时我们生成了不同的Responder实例r2, 现在希望r2能够替换r1, 但对于Presenter类是无法感知, 不用关心的. 显然我们的程序上下文能够实现对于Responder实例的控制(创建/传递), 但现在问题是Presenter类仅有构造参数对Responder的传入, 没有<code>setResponder(Responder r)</code>这样的方法(如果存在<code>setResponder</code>这样的方法, 但就没这坨事了:). 能不能再创建一个Presenter实例p2再传入r2呢? 如果程序上下文允许的话也没这坨事了.</p>
 <p>所以条件是这样: <em><strong>接口的不同实例需要传入一个对象, 但这个对象持有的实例却无法更改, 同时这个对象也无法再次创建</strong></em>.</p>
@@ -109,10 +101,8 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ResponderWrapper</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Holder</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> T responder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">wrap</span><span class="params">(<span class="keyword">final</span> Holder&lt;T&gt; holder, <span class="keyword">final</span> Class&lt;T&gt; clazz)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (T) Proxy.newProxyInstance(clazz.getClassLoader(),</span><br><span class="line">                clazz.getInterfaces(),</span><br><span class="line">                <span class="keyword">new</span> InvocationHandler() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> method.invoke(holder.responder, args);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这就是我们所谓的<strong>动态切换的动态代理</strong>了.</p>
 
-        
       
     </div>
-
     
     
     <div class="article-category">

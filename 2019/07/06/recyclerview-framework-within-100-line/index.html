@@ -5,7 +5,6 @@
   
   <title>百行以内——超轻量级的多类型列表视图框架 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -24,7 +23,7 @@
 <meta property="og:description" content="名字有点唬人，其实就是组合了几个封装类能够方便实现RecyclerView的多视图，毕竟“框架”这个词在我看来还是指具有一定规模量级及重点技术的代码体系，但仅就解决特定问题而言也不妨被冠以这个名号。同时它真的是“超轻量”总共不过4个类，不超过130行代码~ 视图抽象我们已经有了一个无需类型强转的通用ViewHolder(ItemViewHolder)，一个ViewHolder对象可以找到所有视图实">
 <meta property="og:locale">
 <meta property="article:published_time" content="2019-07-06T14:27:48.000Z">
-<meta property="article:modified_time" content="2021-05-11T03:31:02.188Z">
+<meta property="article:modified_time" content="2021-05-11T05:31:19.934Z">
 <meta property="article:author" content="glWesley">
 <meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
 
@@ -43,12 +42,7 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/categories/Tech">Tech</a>
-    
-      
-        <span class="nav-spacer">×</span>
-      
-      <a class="nav-link" href="/categories/Life">Life</a>
+      <a class="nav-link" href="/archives">Archives</a>
     
     
   </nav>
@@ -74,12 +68,10 @@
         </div>
       </header>
     
-
     <div class="article-entry" itemprop="articleBody">
       
-        
-        
-          <p>名字有点唬人，其实就是组合了几个封装类能够方便实现<code>RecyclerView</code>的多视图，毕竟“框架”这个词在我看来还是指具有一定规模量级及重点技术的代码体系，但仅就解决特定问题而言也不妨被冠以这个名号。同时它真的是“超轻量”总共不过4个类，不超过130行代码~</p>
+      
+        <p>名字有点唬人，其实就是组合了几个封装类能够方便实现<code>RecyclerView</code>的多视图，毕竟“框架”这个词在我看来还是指具有一定规模量级及重点技术的代码体系，但仅就解决特定问题而言也不妨被冠以这个名号。同时它真的是“超轻量”总共不过4个类，不超过130行代码~</p>
 <h1 id="视图抽象"><a href="#视图抽象" class="headerlink" title="视图抽象"></a>视图抽象</h1><p>我们已经有了一个<a target="_blank" rel="noopener" href="https://juejin.im/post/6844903858452316168">无需类型强转的通用ViewHolder</a>(ItemViewHolder)，一个ViewHolder对象可以找到所有视图实例。而且它是完全独立的， 没有引入任何自定义类或者任何第三方依赖；即使没有这个“框架”，也完全可以拆出来用在其他地方。</p>
 <h1 id="控件适配器"><a href="#控件适配器" class="headerlink" title="控件适配器"></a>控件适配器</h1><p>适配器(Adapter)是与控件关联的, 是控件对其子视图列表的一种抽象。抽象了什么？由具体定义决定。比如列表控件的适配器（无论是以前的<code>ListView</code>, 现在<code>RecyclerView</code>, 以及其它的如<code>ViewPager</code>）一般抽象了三个属性：</p>
 <ol>
@@ -144,10 +136,8 @@
 <p>这里的<code>payload</code>借鉴了<code>RecyclerView.Adapter</code>，只不过类型由<code>Object</code>变成了<code>int</code>，代表了局部更新需要携带的信息。在<code>ItemBinder</code>实现体内部，因为某项数据变更需要通知到外部就只需调用<code>notifyItemChange</code>方法，将变更传递出去，由外部作出具体响应:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">List&lt;ItemBinder&gt; binders = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">...</span><br><span class="line">ItemBinder special = <span class="keyword">new</span> XXXYYYBinder(...);</span><br><span class="line">specail.setChangeListener(<span class="keyword">new</span> ItemBinder.OnChangeListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemChanged</span><span class="params">(ItemBinder item, <span class="keyword">int</span> payload)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> pos = mAdapter.indexOf(item);</span><br><span class="line">        <span class="keyword">if</span> (pos &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            mAdapter.notifyItemChanged(pos,...);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">binders.add(special);</span><br><span class="line">...</span><br><span class="line">mAdapter.setBinders(binders);</span><br></pre></td></tr></table></figure>
 
-        
       
     </div>
-
     
     
     <div class="article-category">
