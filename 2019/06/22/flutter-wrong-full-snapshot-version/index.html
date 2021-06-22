@@ -5,6 +5,7 @@
   
   <title>flutter: 彻底解决Wrong full snapshot version问题 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -44,7 +45,17 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/weibo">Weibo</a>
     
     
   </nav>
@@ -70,10 +81,12 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <p>环境: flutter-sdk(v1.5.4-hotfix.1@stable)</p>
+        
+        
+          <p>环境: flutter-sdk(v1.5.4-hotfix.1@stable)</p>
 <p>运行flutter脚本的时候有时会遇见<code>Wrong full snapshot version, expected &#39;…&#39; found &#39;…&#39;</code>的错误, 其实这时候是因为在<code>$&#123;FLUTTER_ROOT&#125;/bin/cache</code>里缓存的快照过期或者无效了导致的.</p>
 <p>网上有把<code>$&#123;FLUTTER_ROOT&#125;/bin/cache</code>目录删除了的, 有用<code>git clean -xfd</code><a target="_blank" rel="noopener" href="https://juejin.im/post/5cedf49af265da1bab299027">命令解决的</a>, 其实还是删除了<code>$&#123;FLUTTER_ROOT&#125;/bin/cache</code>目录, 这样的做法不太好, fluter脚本会重新下载dartSDK等一系列工具,整个过程会持续很长时间.</p>
 <p><code>$&#123;FLUTTER_ROOT&#125;/bin/cache</code>有8个标识用的时间戳<br>bin/cache/android-sdk.stamp<br>bin/cache/flutter_sdk.stamp<br>bin/cache/flutter_version_check.stamp<br>bin/cache/ios-sdk.stamp<br>bin/cache/engine-dart-sdk.stamp<br>bin/cache/flutter_tools.stamp<br>bin/cache/gradle_wrapper.stamp<br>bin/cache/material_fonts.stamp<br>其中<code>android-sdk.stamp,flutter_sdk.stamp,os-sdk.stamp,engine-dart-sdk.stamp</code>一般内容一致, 是<code>$&#123;FLUTTER_ROOT&#125;/bin/internal/engine.version</code>中的字串, 相对来说sdk中的内容我们一般不会变更, 如果这几个stamp文件内空不一样改成一致即可.</p>
@@ -82,8 +95,10 @@
 <p>另外如果想让<code>$&#123;FLUTTER_ROOT&#125;/packages/flutter_tools/lib</code>里更改的内容实时生效, 将<code>$&#123;FLUTTER_ROOT&#125;/bin/flutter</code>中引用的<code>$SNAPSHOT_PATH</code>改成<code>$SCRIPT_PATH</code>就可以实时查看dart脚本怎样同步工程, 怎样诊断环境等等所有事情:<br><img src="https://upload-images.jianshu.io/upload_images/19161-87db51a1cbe54ff0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 <p>这意味着<strong>一旦脚本运行出现难懂的错误,我们就可以很容易的定位问题了</strong>!</p>
 
+        
       
     </div>
+
     
     
     <div class="article-category">

@@ -5,6 +5,7 @@
   
   <title>flutter: 平台层与运行层的双向通信Channel | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -42,7 +43,17 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/weibo">Weibo</a>
     
     
   </nav>
@@ -68,10 +79,12 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: v1.5.4-hotfix.1@stable</span><br><span class="line">engine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f</span><br></pre></td></tr></table></figure>
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: v1.5.4-hotfix.1@stable</span><br><span class="line">engine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f</span><br></pre></td></tr></table></figure>
 
 <p>存在这样的情形: flutter应用的视图控件响应用户的输入(比如KeyEvent), 需要将平台的按键数据传递到flutter的dart环境并响应, 同时应用可能因为某个操作需要调用平台的接口让手机震动. 但是flutter的App视图运行dart代码,平台(Android)运行Java代码, 同时dart层无法识别java层定义的对象类, 这就需要将数据在不同的运行环境中传递, flutter框架中的channel机制其实就是实现这个目的的.</p>
 <p>一些文章和部分代码可能会让人感到困扰, 为什么已经有send接口了还要添加一个setMessageHander接口, 同时send已经有回调reply了, 怎么MessageHandler除了数据还有带一个reply.</p>
@@ -97,8 +110,10 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DartMessenger.handleMessageFromDart</span><br><span class="line">  BinaryMessenger.BinaryMessageHandler.onMessage -&gt; MethodChannel.IncomingMethodCallHandler.onMessage</span><br><span class="line">    MethodCallHandler.onMethodCall -&gt; PlatformChannel.parsingMethodCallHandler.onMethodCall</span><br><span class="line">      PlatformMessageHandler.vibrateHapticFeedback -&gt; PlatformPlugin.mPlatformMessageHandler.vibrateHapticFeedback</span><br><span class="line">        PlatformPlugin.vibrateHapticFeedback</span><br><span class="line">          View.performHapticFeedback</span><br></pre></td></tr></table></figure>
 <p>由上可见<code>DartMessenger</code>是channel机制中最为重要的核心类, 是在平台层负责与运行层通信的最关键角色.</p>
 
+        
       
     </div>
+
     
     
     <div class="article-category">

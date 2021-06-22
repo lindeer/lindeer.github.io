@@ -5,6 +5,7 @@
   
   <title>C++11笔记 | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -42,7 +43,17 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/weibo">Weibo</a>
     
     
   </nav>
@@ -68,10 +79,12 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
+        
+        
+          <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A &#123;</span><br><span class="line">    A* next;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">template&lt;T&gt;</span><br><span class="line">class Container &#123;</span><br><span class="line">    T array[5];</span><br><span class="line">public:</span><br><span class="line">    typedef T container_type;</span><br><span class="line">    T access() &#123;</span><br><span class="line">        T a = array[0];</span><br><span class="line">        a.next = ...;</span><br><span class="line">        return a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Container&lt;A&gt; container;</span><br></pre></td></tr></table></figure>
 <p>只希望Container能访问私有成员, 其它的任何类不可以。直接声明会有编译错误，当然如果把<code>A</code>声明成<code>struct</code>可以解决问题，但是要达到数据封装的目的就必须用到friend关键字:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class A &#123;</span><br><span class="line">    template&lt;typename T&gt;</span><br><span class="line">    friend class Container;</span><br><span class="line">    A* next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -126,8 +139,10 @@
 <p>这里有一个细节需要注意:<br>当<code>notify_one</code>执行的时候, 锁是没有释放的, <code>notify_one</code>是立即执行的,也就是说A处代码会立马得到通知,从等待状态唤醒过来, 开始从wait返回, 然而返回需要获取锁,由于锁没有释放, A处代码又立即变为阻塞状态, 等待锁的释放。这样是有比较大的开销的, 我们需要在通知前就释放锁:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    std::lock_guard&lt;std::mutex&gt; lk(_lock);</span><br><span class="line">    var = ...;</span><br><span class="line">&#125;</span><br><span class="line">_cv.notify_one();</span><br></pre></td></tr></table></figure>
 
+        
       
     </div>
+
     
     
     <div class="article-category">

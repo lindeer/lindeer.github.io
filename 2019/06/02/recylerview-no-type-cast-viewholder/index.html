@@ -5,6 +5,7 @@
   
   <title>一劳永逸——RecyclerView无类型强转的通用ViewHolder | 林鹿-Lindeer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
   
@@ -42,7 +43,17 @@
       
         <span class="nav-spacer">×</span>
       
-      <a class="nav-link" href="/archives">Archives</a>
+      <a class="nav-link" href="/categories/Tech">Tech</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/categories/Life">Life</a>
+    
+      
+        <span class="nav-spacer">×</span>
+      
+      <a class="nav-link" href="/weibo">Weibo</a>
     
     
   </nav>
@@ -68,10 +79,12 @@
         </div>
       </header>
     
+
     <div class="article-entry" itemprop="articleBody">
       
-      
-        <p>我们知道在一般的列表视图(recyclerView)中绑定不同类型的列表项子视图是通过各种类型的<code>ViewHolder</code>(比如<code>recyclerView.ViewHolder</code>). 不同数据对不同视图控件的操作是以实现各种ViewHolder子类的方式实现的.<br><strong>能不能只用一种类型的视图来涵盖所有的ViewHolder类型?</strong> 听起来有些不可思议, 每种ViewHolder需要绑定的控件千差万别, 怎么抽象这些控件呢? 但实际上是可以实现的.</p>
+        
+        
+          <p>我们知道在一般的列表视图(recyclerView)中绑定不同类型的列表项子视图是通过各种类型的<code>ViewHolder</code>(比如<code>recyclerView.ViewHolder</code>). 不同数据对不同视图控件的操作是以实现各种ViewHolder子类的方式实现的.<br><strong>能不能只用一种类型的视图来涵盖所有的ViewHolder类型?</strong> 听起来有些不可思议, 每种ViewHolder需要绑定的控件千差万别, 怎么抽象这些控件呢? 但实际上是可以实现的.</p>
 <p>在support.v7.preference库中作者就用了一种方式实现这种效果:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PreferenceViewHolder</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">ViewHolder</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SparseArray&lt;View&gt; mCachedViews = <span class="keyword">new</span> SparseArray&lt;&gt;(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> View <span class="title">findViewById</span><span class="params">(<span class="meta">@IdRes</span> <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> View cachedView = mCachedViews.get(id);</span><br><span class="line">        <span class="keyword">if</span> (cachedView != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> cachedView;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">final</span> View v = itemView.findViewById(id);</span><br><span class="line">            <span class="keyword">if</span> (v != <span class="keyword">null</span>) &#123;</span><br><span class="line">                mCachedViews.put(id, v);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> v;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样外部只需通过<code>findViewById</code>来找到各种各样的控件实例来进行数据绑定即可, 但是声明的ViewHolder却只需一种! 仔细想想这种通过SparseArray持有的方式其实非常巧妙, 真正将ViewHolder作为各种视图的持有者(Holder)不用再区分类型, 可谓实至名归.</p>
@@ -80,8 +93,10 @@
 <p>其实RecyclerView.ViewHolder本身就应该设计成这种方式, 并且声明成<code>final</code>强制移除各种Viewholder类型的强转.</p>
 <p>所以还是要多看官方成熟的库, 他们的设计和实现都是经过千锤百炼, 对学习非常有益处.</p>
 
+        
       
     </div>
+
     
     
     <div class="article-category">
