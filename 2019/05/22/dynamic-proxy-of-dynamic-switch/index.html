@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -16,17 +18,21 @@
 <link rel="stylesheet" href="/css/highlight.css">
 
   
-  <meta name="description" content="名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.先理解前提条件和程序上下文, 譬如有如下接口: 12345public interface Responder &amp;#123;    void onMethod1(String s);    int onMethod2();    void onMethod3();&amp;#125; 我们将接口的一个实例Resp">
+  <meta name="description" content="名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换. 先理解前提条件和程序上下文, 譬如有如下接口: 12345public interface Responder &amp;#123;    void onMethod1(String s);    int onMethod2();    void onMethod3();&amp;#125; 我们将接口的一个实例Res">
 <meta property="og:type" content="article">
 <meta property="og:title" content="动态切换的动态代理">
 <meta property="og:url" content="http://www.lindeer.net/2019/05/22/dynamic-proxy-of-dynamic-switch/index.html">
 <meta property="og:site_name" content="林鹿-Lindeer">
-<meta property="og:description" content="名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.先理解前提条件和程序上下文, 譬如有如下接口: 12345public interface Responder &amp;#123;    void onMethod1(String s);    int onMethod2();    void onMethod3();&amp;#125; 我们将接口的一个实例Resp">
+<meta property="og:description" content="名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换. 先理解前提条件和程序上下文, 譬如有如下接口: 12345public interface Responder &amp;#123;    void onMethod1(String s);    int onMethod2();    void onMethod3();&amp;#125; 我们将接口的一个实例Res">
 <meta property="og:locale">
 <meta property="article:published_time" content="2019-05-22T11:40:29.000Z">
 <meta property="article:modified_time" content="2021-05-11T05:31:19.927Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -84,7 +90,8 @@
       
         
         
-          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br>先理解前提条件和程序上下文, 譬如有如下接口:</p>
+          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br />
+先理解前提条件和程序上下文, 譬如有如下接口:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Responder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onMethod1</span><span class="params">(String s)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">onMethod2</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onMethod3</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们将接口的一个实例<code>Responder r1</code>传入了一个别的类<code>p1 = new Presenter(r1)</code>(或者外部SDK), 在运行时我们生成了不同的Responder实例r2, 现在希望r2能够替换r1, 但对于Presenter类是无法感知, 不用关心的. 显然我们的程序上下文能够实现对于Responder实例的控制(创建/传递), 但现在问题是Presenter类仅有构造参数对Responder的传入, 没有<code>setResponder(Responder r)</code>这样的方法(如果存在<code>setResponder</code>这样的方法, 但就没这坨事了:). 能不能再创建一个Presenter实例p2再传入r2呢? 如果程序上下文允许的话也没这坨事了.</p>
 <p>所以条件是这样: <em><strong>接口的不同实例需要传入一个对象, 但这个对象持有的实例却无法更改, 同时这个对象也无法再次创建</strong></em>.</p>
@@ -97,10 +104,13 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wrapper = new ResponderWrapper(r1);</span><br><span class="line">p1 = new Presenter(wrapper);</span><br></pre></td></tr></table></figure>
 <p>这时创建了新的Responder实例r2, 我们只需要</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wrapper.setResponder(r2);</span><br></pre></td></tr></table></figure>
-<p>就能够达到我们的目的了! p1还是p1, p1持有的实例还是同一个实例, 在切换前p1调的是r1的实现, 切换后自然就调用了r2的实现.<br>这种代理就是非常常见的静态代理, 仅就功能实现来说这已经完全OK了, 没有任何问题了.  是不是非得用动态代理? 并不是!</p>
-<p>那动态代理是干吗的? 为了适应变化, 什么的变化? 接口的变化! 如果接口Responder新增一个方法, ResponderWrapper再增加同样一个接口; 如果修改Responder一个方法的参数, ResponderWrapper再接着修改并调用接口实例的新方法, 如此类推, 也没任何问题. 但接口的方法一旦变的很多, 接口的实现类一旦变的很多, 就需要做大量繁琐重复的工作, 那么动态代理就能够解决这种重复繁琐的工作.<br>以动态代理的形式写一个ResponderWrapper非常简单:</p>
+<p>就能够达到我们的目的了! p1还是p1, p1持有的实例还是同一个实例, 在切换前p1调的是r1的实现, 切换后自然就调用了r2的实现.<br />
+这种代理就是非常常见的静态代理, 仅就功能实现来说这已经完全OK了, 没有任何问题了.  是不是非得用动态代理? 并不是!</p>
+<p>那动态代理是干吗的? 为了适应变化, 什么的变化? 接口的变化! 如果接口Responder新增一个方法, ResponderWrapper再增加同样一个接口; 如果修改Responder一个方法的参数, ResponderWrapper再接着修改并调用接口实例的新方法, 如此类推, 也没任何问题. 但接口的方法一旦变的很多, 接口的实现类一旦变的很多, 就需要做大量繁琐重复的工作, 那么动态代理就能够解决这种重复繁琐的工作.<br />
+以动态代理的形式写一个ResponderWrapper非常简单:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ResponderWrapper</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Responder <span class="title">wrap</span><span class="params">(<span class="keyword">final</span> Responder responder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Responder) Proxy.newProxyInstance(Responder.class.getClassLoader(),</span><br><span class="line">                Responder.class.getInterfaces(),</span><br><span class="line">                <span class="keyword">new</span> InvocationHandler() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> method.invoke(responder, args);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是这样写无法满足动态切换的需求, 所以我们的最终目的这才出来了: <em><strong>以动态代理形式创建的代理实例能够动态切换持有的对象实例</strong></em><br>但一旦<code>ResponderWrapper.wrap</code>传入r1那么匿名对象持有的Responder对象就只能一直是r1, 所以希望<code>method.invoke(responder, args)</code>这里的<code>responder</code>能够动态切换, 这种”动态”能力一般都是以接口的形式实现, 于是有:</p>
+<p>但是这样写无法满足动态切换的需求, 所以我们的最终目的这才出来了: <em><strong>以动态代理形式创建的代理实例能够动态切换持有的对象实例</strong></em><br />
+但一旦<code>ResponderWrapper.wrap</code>传入r1那么匿名对象持有的Responder对象就只能一直是r1, 所以希望<code>method.invoke(responder, args)</code>这里的<code>responder</code>能够动态切换, 这种&quot;动态&quot;能力一般都是以接口的形式实现, 于是有:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ResponderWrapper</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Provider</span> </span>&#123;</span><br><span class="line">        <span class="function">Responder <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Responder <span class="title">wrap</span><span class="params">(<span class="keyword">final</span> Provider provider)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Responder) Proxy.newProxyInstance(Responder.class.getClassLoader(),</span><br><span class="line">                Responder.class.getInterfaces(),</span><br><span class="line">                <span class="keyword">new</span> InvocationHandler() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> method.invoke(provider.get(), args);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 <p>程序上下文实现<code>ResponderWrapper.Provider</code>接口, 当接口方法被调用时返回的实例是当前的Responder, 不用关心什么时候切换:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mResonder = r1;</span><br><span class="line">wrapper = ResponderWrapper.wrap(<span class="keyword">new</span> ResponderWrapper.Provider() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ResponderWrapper.<span class="function">Responder <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mResponder;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">p1 = <span class="keyword">new</span> Presenter(wrapper);</span><br><span class="line">...</span><br><span class="line">mResonder = r2;</span><br></pre></td></tr></table></figure>

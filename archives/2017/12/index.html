@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -22,7 +24,11 @@
 <meta property="og:site_name" content="林鹿-Lindeer">
 <meta property="og:locale">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -83,7 +89,7 @@
       
         
         
-          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
+          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br />
           
             <p class="article-more-link">
               <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>

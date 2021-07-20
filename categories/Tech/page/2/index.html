@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -22,7 +24,11 @@
 <meta property="og:site_name" content="林鹿-Lindeer">
 <meta property="og:locale">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -83,7 +89,7 @@
       
         
         
-          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br>想法很简单：计算每个非目标child的wrap_content宽度，用父宽度减去得availableWidth，再计算目标child的宽度，如果超过就减小字体值，直至合适的字体大小值出现。<br>然而实现后实际宽度比预期少那几个像素，使得相邻的文本折行了。</p>
+          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br />
           
             <p class="article-more-link">
               <a href="/2018/04/28/android-text-width-trap/#more">read more</a>
@@ -127,7 +133,7 @@
       
         
         
-          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
+          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br />
           
             <p class="article-more-link">
               <a href="/2018/04/18/recyclerview-divider-by-viewtype/#more">read more</a>
@@ -171,7 +177,7 @@
       
         
         
-          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
+          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br />
           
             <p class="article-more-link">
               <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>
@@ -215,7 +221,7 @@
       
         
         
-          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br />
           
             <p class="article-more-link">
               <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
@@ -259,7 +265,7 @@
       
         
         
-          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
+          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的&quot;全文/收起&quot;根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
           
             <p class="article-more-link">
               <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>
@@ -347,7 +353,7 @@
       
         
         
-          <h1 id="友元类是模板类的声明"><a href="#友元类是模板类的声明" class="headerlink" title="友元类是模板类的声明"></a>友元类是模板类的声明</h1><p>有一个类成员私有，希望指定的模板类可以访问，比如:</p>
+          <h1 id="友元类是模板类的声明"><a class="markdownIt-Anchor" href="#友元类是模板类的声明"></a> 友元类是模板类的声明</h1>
           
             <p class="article-more-link">
               <a href="/2017/06/14/notes-about-c11/#more">read more</a>
@@ -391,7 +397,7 @@
       
         
         
-          <p>主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。<br>#UEFI安装系统<br>####0. 准备工作－设置BIOS</p>
+          <p>主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。</p>
           
             <p class="article-more-link">
               <a href="/2016/08/04/fedora-install-and-config/#more">read more</a>
@@ -435,7 +441,7 @@
       
         
         
-          <p>最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。<br>先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。</p>
+          <p>最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。<br />
           
             <p class="article-more-link">
               <a href="/2014/07/20/my-tech-translation-rules/#more">read more</a>

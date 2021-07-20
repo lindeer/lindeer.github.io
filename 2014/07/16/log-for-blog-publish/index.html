@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -26,7 +28,11 @@
 <meta property="article:published_time" content="2014-07-16T13:49:55.000Z">
 <meta property="article:modified_time" content="2021-05-11T05:31:19.930Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -88,8 +94,8 @@
 <p>有话就说，有屁就放，写个博客高大上，没事还可轻狂轻狂。平时也是一个观点一个想法的，看到别人的状态便来个回复，碰着朋友的议论还要摆谱点评点评，等到要你来说的时候又三棒子打不出一个闷屁，说你是刺儿头没说错嘛……要你来帮忙出出主意的时候成哑巴了，用不着你来答疑解惑的时候又吵吵个没完，唔，我也要有自知之明，不要总不合时宜，现在有话要说不用再对着他们了，你在博客上展示等于向全世界大声宣扬，这个世界的噪音又增加了但增加的微不足道；他们的世界清静了，却清静的彻头彻尾。</p>
 <p>今天绑定域名的时候参看了这个<a target="_blank" rel="noopener" href="http://kescoode.com/2013/11/17/github-page-and-hexo-guide/">链接</a>，关键是dnspod这个国内免费DNS服务的用法。总结一下就是：</p>
 <ol>
-<li>Godaddy -&gt; Domains -&gt; Manage My Domains -&gt; Set Nameservers -&gt; Custom -&gt; F1G1NS1.DNSPOD.NET</li>
-<li>Dnspod -&gt; 添加域名 -&gt; 添加记录 -&gt; @ | CNAME | 默认 | lindeer.github.io.</li>
+<li>Godaddy -&gt; Domains -&gt; Manage My Domains -&gt; Set Nameservers -&gt; Custom -&gt; <a target="_blank" rel="noopener" href="http://F1G1NS1.DNSPOD.NET">F1G1NS1.DNSPOD.NET</a></li>
+<li>Dnspod -&gt; 添加域名 -&gt; 添加记录 -&gt; @ | CNAME | 默认 | <a target="_blank" rel="noopener" href="http://lindeer.github.io">lindeer.github.io</a>.</li>
 <li><code>cd &lt;blogroot&gt; &amp;&amp; echo &quot;lindeer.net&quot; &gt; source/CNAME &amp;&amp; hexo g &amp;&amp; hexo d</code></li>
 </ol>
 <p>是为记。</p>

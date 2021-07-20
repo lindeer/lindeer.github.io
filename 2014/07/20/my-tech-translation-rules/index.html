@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -16,17 +18,21 @@
 <link rel="stylesheet" href="/css/highlight.css">
 
   
-  <meta name="description" content="最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。 语言的学习从来是一项重要的技能，翻译一下正好可以练习之。技术翻译一旦了解术语及其含义，相比文艺作品还是相当容易的。文艺作品相关的东西可能很多，时代背景国别情况文化差异甚至语言习惯，而技术翻译只要正确把握说明意图和">
+  <meta name="description" content="最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。 先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。 语言的学习从来是一项重要的技能，翻译一下正好可以练习之。技术翻译一旦了解术语及其含义，相比文艺作品还是相当容易的。文艺作品相关的东西可能很多，时代背景国别情况文化差异甚至语言习惯，而技术翻译只要正确把握说明意图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="开始技术翻译实践">
 <meta property="og:url" content="http://www.lindeer.net/2014/07/20/my-tech-translation-rules/index.html">
 <meta property="og:site_name" content="林鹿-Lindeer">
-<meta property="og:description" content="最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。 语言的学习从来是一项重要的技能，翻译一下正好可以练习之。技术翻译一旦了解术语及其含义，相比文艺作品还是相当容易的。文艺作品相关的东西可能很多，时代背景国别情况文化差异甚至语言习惯，而技术翻译只要正确把握说明意图和">
+<meta property="og:description" content="最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。 先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。 语言的学习从来是一项重要的技能，翻译一下正好可以练习之。技术翻译一旦了解术语及其含义，相比文艺作品还是相当容易的。文艺作品相关的东西可能很多，时代背景国别情况文化差异甚至语言习惯，而技术翻译只要正确把握说明意图">
 <meta property="og:locale">
 <meta property="article:published_time" content="2014-07-20T13:27:00.000Z">
 <meta property="article:modified_time" content="2021-05-11T05:31:19.930Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -84,7 +90,8 @@
       
         
         
-          <p>最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。<br>先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。</p>
+          <p>最近在实现一个控件可以自适应布局的算法，看了一些资料，记录下来。<br />
+先是两个PPT slice，言简意赅的说明了布局（layout）是什么，针对的对象，所用的一般方法，和布局应用的一些小史。</p>
 <p>语言的学习从来是一项重要的技能，翻译一下正好可以练习之。技术翻译一旦了解术语及其含义，相比文艺作品还是相当容易的。文艺作品相关的东西可能很多，时代背景国别情况文化差异甚至语言习惯，而技术翻译只要正确把握说明意图和技术概念应该是不难的——还是先从简单的做起来，不要想当然。</p>
 <p>我的技术翻译的原则是：</p>
 <ol>

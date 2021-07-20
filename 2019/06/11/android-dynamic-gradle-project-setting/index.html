@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -16,17 +18,21 @@
 <link rel="stylesheet" href="/css/highlight.css">
 
   
-  <meta name="description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方:app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:so">
+  <meta name="description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方: app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android动态改变工程依赖">
 <meta property="og:url" content="http://www.lindeer.net/2019/06/11/android-dynamic-gradle-project-setting/index.html">
 <meta property="og:site_name" content="林鹿-Lindeer">
-<meta property="og:description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方:app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:so">
+<meta property="og:description" content="在app&#x2F;build.gradle有如下库依赖: 123dependencies &amp;#123;    compile &quot;com.xxx.yyy:somelib:$version&quot;&amp;#125; 现在如果要改成源码依赖(工程依赖)需要改2处地方: app&#x2F;build.gradle: 123dependencies &amp;#123;    compile project(&amp;#x27;:s">
 <meta property="og:locale">
 <meta property="article:published_time" content="2019-06-11T14:02:32.000Z">
 <meta property="article:modified_time" content="2021-05-11T05:31:19.922Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -86,21 +92,24 @@
         
           <p>在<code>app/build.gradle</code>有如下库依赖:</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile <span class="string">&quot;com.xxx.yyy:somelib:$version&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在如果要改成源码依赖(工程依赖)需要改2处地方:<br><code>app/build.gradle</code>:</p>
+<p>现在如果要改成源码依赖(工程依赖)需要改2处地方:<br />
+<code>app/build.gradle</code>:</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile project(<span class="string">&#x27;:somelib&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>settings.gradle</code>:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include &#x27;:somelib&#x27;</span><br><span class="line">project(&quot;:somelib&quot;).projectDir = new File(&quot;/lib/dir&quot;, &quot;/some/path/somelib&quot;)</span><br></pre></td></tr></table></figure>
 <p>现在依赖的库非常多, 而且还存在依赖嵌套, 希望<strong>只改一处配置就能够切换库依赖与源码依赖</strong></p>
-<p>显然用库依赖<code>settings.gradle</code>里不需要<code>include</code>那坨语句, 那么必然需要在<code>settings.gradle</code>里定义一个变量来作条件判断, 这里需要解决的一个核心问题是<code>app/build.gradle</code>能够访问到<code>settings.gradle</code>里的这个变量来继续来作<code>compile &quot;com.xxx.yyy:somelib:$version&quot;</code>还是<code>compile project(&#39;:somelib&#39;)</code>的判断, 也就是需要一个<em><strong>全局可访问的gradle变量</strong></em></p>
+<p>显然用库依赖<code>settings.gradle</code>里不需要<code>include</code>那坨语句, 那么必然需要在<code>settings.gradle</code>里定义一个变量来作条件判断, 这里需要解决的一个核心问题是<code>app/build.gradle</code>能够访问到<code>settings.gradle</code>里的这个变量来继续来作<code>compile &quot;com.xxx.yyy:somelib:$version&quot;</code>还是<code>compile project(':somelib')</code>的判断, 也就是需要一个***全局可访问的gradle变量***</p>
 <p>网上搜索了一圈竟然没找到!</p>
 <p>研究了一下发现以下重要2点:</p>
 <ol>
 <li><code>settings.gradle</code>对象生成早于<code>app/build.gradle</code>甚至早于根目录的<code>build.gradle</code>, 所以在build.gradle里声明<code>ext &#123; someVar=xxx &#125;</code>变量无效, settings无法访问</li>
 <li><code>app/build.gradle</code>上下文依赖的<code>project</code>对象与<code>settings.gradle</code>共享同一个gradle对象</li>
 </ol>
-<p>于是有如下配置:<br><code>settings.gradle</code>:</p>
+<p>于是有如下配置:<br />
+<code>settings.gradle</code>:</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> module_config = [</span><br><span class="line">    <span class="string">&#x27;somelib&#x27;</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;aaa&#x27;</span>: <span class="string">&#x27;1.0.0&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;bbb&#x27;</span>: <span class="string">&#x27;0.2.0&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;ccc&#x27;</span>: <span class="string">&#x27;0.0.3&#x27;</span>,</span><br><span class="line">]</span><br><span class="line">module_config.each &#123; k, v -&gt;</span><br><span class="line">    <span class="keyword">if</span> (!v) &#123;</span><br><span class="line">        include <span class="string">&quot;:$&#123;k&#125;&quot;</span></span><br><span class="line">        project(<span class="string">&quot;:$&#123;k&#125;&quot;</span>).projectDir = <span class="keyword">new</span> File(rootDir.getParent(), <span class="string">&quot;/some/path/$&#123;k&#125;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">gradle.ext.dependon = &#123; project, name -&gt;</span><br><span class="line">    <span class="keyword">def</span> ver = module_config[name]</span><br><span class="line">    <span class="keyword">def</span> handler = project.dependencies</span><br><span class="line">    <span class="keyword">if</span> (!ver) &#123;</span><br><span class="line">        handler.compile project.project(<span class="string">&quot;:$name&quot;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler.compile <span class="string">&quot;com.xxx.yyy:$name:$ver&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里用<code>gradle.ext</code>定义了一个全局的方法而不是一个变量, 这样在引用的时候直接调用:<br><code>app/build.gradle</code>:</p>
+<p>这里用<code>gradle.ext</code>定义了一个全局的方法而不是一个变量, 这样在引用的时候直接调用:<br />
+<code>app/build.gradle</code>:</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;somelib&quot;</span>)</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    gradle.ext.dependon(<span class="built_in">this</span>, <span class="string">&quot;ccc&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样我们只需更改<code>module_config</code>中对应模块的版本就可以实现一动态改变工程依赖的功能了!</p>
 <p>注意<code>gradle.ext.dependon</code>传入的是<code>org.gradle.apiProject</code>对象, 而project.dependencies是<code>org.gradle.api.artifacts.dsl.DependencyHandler</code>对象, 分别是gradle配置类</p>

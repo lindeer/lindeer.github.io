@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -16,17 +18,21 @@
 <link rel="stylesheet" href="/css/highlight.css">
 
   
-  <meta name="description" content="主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。#UEFI安装系统####0. 准备工作－设置BIOS  设置启动顺序不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。 打开UEFI启动开关有些BIOS需要专门设置UEFI的启">
+  <meta name="description" content="主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。  UEFI安装系统  0. 准备工作－设置BIOS  设置启动顺序 不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。 打开UEFI启动开关 有些BIOS需要专门设置UEFI的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Fedora轻松安装与配置">
 <meta property="og:url" content="http://www.lindeer.net/2016/08/04/fedora-install-and-config/index.html">
 <meta property="og:site_name" content="林鹿-Lindeer">
-<meta property="og:description" content="主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。#UEFI安装系统####0. 准备工作－设置BIOS  设置启动顺序不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。 打开UEFI启动开关有些BIOS需要专门设置UEFI的启">
+<meta property="og:description" content="主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。  UEFI安装系统  0. 准备工作－设置BIOS  设置启动顺序 不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。 打开UEFI启动开关 有些BIOS需要专门设置UEFI的">
 <meta property="og:locale">
 <meta property="article:published_time" content="2016-08-04T03:46:56.000Z">
-<meta property="article:modified_time" content="2021-05-11T05:31:19.927Z">
+<meta property="article:modified_time" content="2021-07-16T09:36:53.254Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -84,53 +90,81 @@
       
         
         
-          <p>主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。<br>#UEFI安装系统<br>####0. 准备工作－设置BIOS</p>
+          <p>主要是用来做点记录，长点记性，不然每次都从头开始安装的时候都忘记一些小点，结果把整个过程拖的老长，浪费了不少时间。</p>
+<h1 id="uefi安装系统"><a class="markdownIt-Anchor" href="#uefi安装系统"></a> UEFI安装系统</h1>
+<h4 id="0-准备工作-设置bios"><a class="markdownIt-Anchor" href="#0-准备工作-设置bios"></a> 0. 准备工作－设置BIOS</h4>
 <ol>
-<li>设置启动顺序<br>不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。</li>
-<li>打开UEFI启动开关<br>有些BIOS需要专门设置UEFI的启动开关，当前所用的HP 430 G3就是这样。</li>
-<li>打开虚拟化设置<br>在Boot Option -&gt; Advanced -&gt; System Option中勾选Virtualization Technology(VTx), 这主要是为了以后方便安装其它工具。</li>
-<li>安全启动设置<br>在Boot Option -&gt; Advanced 在 -&gt; Secure Boot Configuration 中选择legacy enable and secure boot disable， 不然可能引起无线网络的问题。</li>
+<li>设置启动顺序<br />
+不同的机器有不同的BIOS，对应的名称位置都不太一样，需要自己能找到。一般在boot option -&gt; 高级 里面，将从USB启动放在从磁盘驱动前面。</li>
+<li>打开UEFI启动开关<br />
+有些BIOS需要专门设置UEFI的启动开关，当前所用的HP 430 G3就是这样。</li>
+<li>打开虚拟化设置<br />
+在Boot Option -&gt; Advanced -&gt; System Option中勾选Virtualization Technology(VTx), 这主要是为了以后方便安装其它工具。</li>
+<li>安全启动设置<br />
+在Boot Option -&gt; Advanced 在 -&gt; Secure Boot Configuration 中选择legacy enable and secure boot disable， 不然可能引起无线网络的问题。</li>
 </ol>
-<p>####1. 下载<a target="_blank" rel="noopener" href="https://mbriza.fedorapeople.org/liveusb-creator.zip">liveusb-creator</a>来刻录ISO文件<br><font color="#f00"> 一定要用Fedora的专属软件否则无法成功制作启动U盘！</font> 被这个问题坑了很多次， 每次都忘记用…<br>####2. 分区<br>Fedora自20(?)版本之后都用GPT的磁盘分区格式， 这意味着如果机器要装双系统就没法再装MBR分区的系统比如Win7, 已经装了Win7也没法再装fedora了，但是再装Win8, Win10就没有问题， GPT应该是以后的标准配置，苹果也用的它。<br>在安装过程中会提示划分挂载点， 这个只要有足够多空余磁盘空间，点击“自动划分”一般没啥问题。</p>
-<p>#安装无线网卡驱动<br>遇到的一个问题是系统成功安装在HP 430 G3的垃圾机器上却没有区域内的WIFI列表。首先要确定是否是硬件的问题，由于之前的系统装过windows并且能连wifi所以可以确定硬件没有问题。这样的情况一般就是驱动软件没安装合适，可能是镜像文件内的默认驱动没法正常工作。</p>
+<h4 id="1-下载liveusb-creator来刻录iso文件"><a class="markdownIt-Anchor" href="#1-下载liveusb-creator来刻录iso文件"></a> 1. 下载<a target="_blank" rel="noopener" href="https://mbriza.fedorapeople.org/liveusb-creator.zip">liveusb-creator</a>来刻录ISO文件</h4>
+<p><font color="#f00"> 一定要用Fedora的专属软件否则无法成功制作启动U盘！</font> 被这个问题坑了很多次， 每次都忘记用…</p>
+<h4 id="2-分区"><a class="markdownIt-Anchor" href="#2-分区"></a> 2. 分区</h4>
+<p>Fedora自20(?)版本之后都用GPT的磁盘分区格式， 这意味着如果机器要装双系统就没法再装MBR分区的系统比如Win7, 已经装了Win7也没法再装fedora了，但是再装Win8, Win10就没有问题， GPT应该是以后的标准配置，苹果也用的它。<br />
+在安装过程中会提示划分挂载点， 这个只要有足够多空余磁盘空间，点击“自动划分”一般没啥问题。</p>
+<h1 id="安装无线网卡驱动"><a class="markdownIt-Anchor" href="#安装无线网卡驱动"></a> 安装无线网卡驱动</h1>
+<p>遇到的一个问题是系统成功安装在HP 430 G3的垃圾机器上却没有区域内的WIFI列表。首先要确定是否是硬件的问题，由于之前的系统装过windows并且能连wifi所以可以确定硬件没有问题。这样的情况一般就是驱动软件没安装合适，可能是镜像文件内的默认驱动没法正常工作。</p>
 <ol>
-<li>找到网卡驱动<br>运行<code>lspci | grep -i &quot;network&quot;</code></li>
-<li>安装源内驱动<br><code>dnf search $Verdor</code> 搜索厂商驱动包再分别安装</li>
-<li>安装厂商驱动<br>遇到的问题是已经安装了Broadcom的驱动还是不能工作，这样就只能从厂商网站上下载正确的Linux驱动安装包。网上搜索到<a target="_blank" rel="noopener" href="https://onpub.com/install-broadcom-linux-wi-fi-driver-on-fedora-23-s7-a192">这篇文章</a>可以了解下，虽然针对23但实际操作没有关系，脚本做了以下4个操作：</li>
+<li>找到网卡驱动<br />
+运行<code>lspci | grep -i &quot;network&quot;</code></li>
+<li>安装源内驱动<br />
+<code>dnf search $Verdor</code> 搜索厂商驱动包再分别安装</li>
+<li>安装厂商驱动<br />
+遇到的问题是已经安装了Broadcom的驱动还是不能工作，这样就只能从厂商网站上下载正确的Linux驱动安装包。网上搜索到<a target="_blank" rel="noopener" href="https://onpub.com/install-broadcom-linux-wi-fi-driver-on-fedora-23-s7-a192">这篇文章</a>可以了解下，虽然针对23但实际操作没有关系，脚本做了以下4个操作：</li>
 <li>下载包</li>
 <li>编译并安装包（安装需要root）</li>
 <li>删除已有wireless内核模块并安装新模块</li>
-<li>写入新配置<br>重启后终于看到wifi了。</li>
+<li>写入新配置<br />
+重启后终于看到wifi了。</li>
 </ol>
-<p>#启动ssh服务</p>
+<h1 id="启动ssh服务"><a class="markdownIt-Anchor" href="#启动ssh服务"></a> 启动ssh服务</h1>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># systemctl stop sshd.service</span><br><span class="line"># systemctl start sshd.service</span><br></pre></td></tr></table></figure>
-
-<p>#安装输入法</p>
+<h1 id="安装输入法"><a class="markdownIt-Anchor" href="#安装输入法"></a> 安装输入法</h1>
 <ol>
 <li>安装输入法包比如极点五笔 <code>dnf install ibus-table-chinese-wubi-jidian.noarch</code></li>
-<li>运行<code>ibus-setup</code> 在配置界面加入新的输入法，没有ibus再安装ibus包<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export GTK_IM_MODULE=ibus</span><br><span class="line">export XMODIFIERS=@im=ibus</span><br><span class="line">export QT_IM_MODULE=ibus</span><br></pre></td></tr></table></figure></li>
-<li>重启机器后配置好的输入法还是无法显示？<br>需要加入ibus-daemon到自动重启，每种桌面环境的自动重启配置界面不同， 在Xfce中Applications -&gt; Settings -&gt; Session&amp;Startup, 添加命令<code>ibus-daemon -d</code><br>可是有时系统重启以后明明已经有输入法的图标在任务栏上显示，可是就是无法输入汉字，再重启后又可以使用了，不知道啥原因…</li>
+<li>运行<code>ibus-setup</code> 在配置界面加入新的输入法，没有ibus再安装ibus包</li>
 </ol>
-<p>#安装Docker<br>所有操作都需要root权限, $USER对应的是当前普通用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export GTK_IM_MODULE=ibus</span><br><span class="line">export XMODIFIERS=@im=ibus</span><br><span class="line">export QT_IM_MODULE=ibus</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>重启机器后配置好的输入法还是无法显示？<br />
+需要加入ibus-daemon到自动重启，每种桌面环境的自动重启配置界面不同， 在Xfce中Applications -&gt; Settings -&gt; Session&amp;Startup, 添加命令<code>ibus-daemon -d</code><br />
+可是有时系统重启以后明明已经有输入法的图标在任务栏上显示，可是就是无法输入汉字，再重启后又可以使用了，不知道啥原因…</li>
+</ol>
+<h1 id="安装docker"><a class="markdownIt-Anchor" href="#安装docker"></a> 安装Docker</h1>
+<p>所有操作都需要root权限, $USER对应的是当前普通用户</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dnf install docker</span><br><span class="line">systemctl start docker</span><br><span class="line">systemctl enable docker</span><br><span class="line">groupadd docker</span><br><span class="line">chown root:docker /var/run/docker.sock</span><br><span class="line">usermod -a -G docker $USER</span><br></pre></td></tr></table></figure>
-<p>重启机器，这样就能够以普通用户执行docker操作了。<br>####docker加载本地存储卷错误<br><code>docker run -v /path/to/volume:/path/to/dest</code>之前需要执行<br><code>chcon -Rt svirt_sandbox_file_t /path/to/volume</code></p>
-<p>#安装Android32位兼容包<br><code>dnf install glibc.i686 zlib.i686 libgcc.i686</code></p>
-<p>#运行samba<br><code>smbclient -N //10.140.60.128/&lt;share_name&gt;</code><br>share_name一定要是服务器上根目录，不能带路径</p>
-<p>#安装quart</p>
+<p>重启机器，这样就能够以普通用户执行docker操作了。</p>
+<h4 id="docker加载本地存储卷错误"><a class="markdownIt-Anchor" href="#docker加载本地存储卷错误"></a> docker加载本地存储卷错误</h4>
+<p><code>docker run -v /path/to/volume:/path/to/dest</code>之前需要执行<br />
+<code>chcon -Rt svirt_sandbox_file_t /path/to/volume</code></p>
+<h1 id="安装android32位兼容包"><a class="markdownIt-Anchor" href="#安装android32位兼容包"></a> 安装Android32位兼容包</h1>
+<p><code>dnf install glibc.i686 zlib.i686 libgcc.i686</code></p>
+<h1 id="运行samba"><a class="markdownIt-Anchor" href="#运行samba"></a> 运行samba</h1>
+<p><code>smbclient -N //10.140.60.128/&lt;share_name&gt;</code><br />
+share_name一定要是服务器上根目录，不能带路径</p>
+<h1 id="安装quart"><a class="markdownIt-Anchor" href="#安装quart"></a> 安装quart</h1>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnf install redhat-rpm-config Cython python2-devel</span><br></pre></td></tr></table></figure>
-<p>#安装VirtualBox</p>
+<h1 id="安装virtualbox"><a class="markdownIt-Anchor" href="#安装virtualbox"></a> 安装VirtualBox</h1>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dnf install kernel-devel dkms kernel-headers</span><br><span class="line">/sbin/rcvboxdrv setup</span><br></pre></td></tr></table></figure>
-<p>下载<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">VM VirtualBox Extension Pack</a><br>#安装Bochs</p>
+<p>下载<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">VM VirtualBox Extension Pack</a></p>
+<h1 id="安装bochs"><a class="markdownIt-Anchor" href="#安装bochs"></a> 安装Bochs</h1>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnf install bochs bochs-debugger</span><br></pre></td></tr></table></figure>
-
-<p>#编译Bochs</p>
+<h1 id="编译bochs"><a class="markdownIt-Anchor" href="#编译bochs"></a> 编译Bochs</h1>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnf install libX11-devel libXrandr-devel</span><br></pre></td></tr></table></figure>
-
-<p>#升级</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dnf upgrade --refresh</span><br><span class="line">dnf install dnf-plugin-system-upgrade</span><br><span class="line">dnf system-upgrade download --releasever=31</span><br><span class="line">dnf system-upgrade reboot</span><br></pre></td></tr></table></figure>
-
-<p>#升级后<br><a target="_blank" rel="noopener" href="https://fedoramagazine.org/upgrading-fedora-30-to-fedora-31/">fedoramagazine</a></p>
+<h1 id="升级"><a class="markdownIt-Anchor" href="#升级"></a> 升级</h1>
+<p><a target="_blank" rel="noopener" href="https://docs.fedoraproject.org/en-US/quick-docs/dnf-system-upgrade/">fedoraproject</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dnf upgrade --refresh</span><br><span class="line">dnf install dnf-plugin-system-upgrade</span><br><span class="line">rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-34-x86_64</span><br><span class="line">dnf system-upgrade download --releasever=34</span><br><span class="line">dnf system-upgrade reboot</span><br></pre></td></tr></table></figure>
+<h1 id="升级后"><a class="markdownIt-Anchor" href="#升级后"></a> 升级后</h1>
+<p><a target="_blank" rel="noopener" href="https://fedoramagazine.org/upgrading-fedora-30-to-fedora-31/">fedoramagazine</a></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dnf copr enable librehat/shadowsocks</span><br><span class="line">dnf update &amp;&amp; dnf install shadowsocks-libev</span><br></pre></td></tr></table></figure>
+<p>Fedora 34:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">snap install shadowsocks</span><br><span class="line">shadowsocks.sslocal -c shadowsock.json -d start</span><br></pre></td></tr></table></figure>
 
         
       

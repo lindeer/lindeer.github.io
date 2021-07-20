@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -22,7 +24,11 @@
 <meta property="og:site_name" content="林鹿-Lindeer">
 <meta property="og:locale">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -83,7 +89,7 @@
       
         
         
-          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br>想法很简单：计算每个非目标child的wrap_content宽度，用父宽度减去得availableWidth，再计算目标child的宽度，如果超过就减小字体值，直至合适的字体大小值出现。<br>然而实现后实际宽度比预期少那几个像素，使得相邻的文本折行了。</p>
+          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br />
           
             <p class="article-more-link">
               <a href="/2018/04/28/android-text-width-trap/#more">read more</a>
@@ -127,7 +133,7 @@
       
         
         
-          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
+          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br />
           
             <p class="article-more-link">
               <a href="/2018/04/18/recyclerview-divider-by-viewtype/#more">read more</a>

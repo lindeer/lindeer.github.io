@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -22,7 +24,11 @@
 <meta property="og:site_name" content="林鹿-Lindeer">
 <meta property="og:locale">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -83,7 +89,7 @@
       
         
         
-          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br />
           
             <p class="article-more-link">
               <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
@@ -127,7 +133,7 @@
       
         
         
-          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
+          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的&quot;全文/收起&quot;根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
           
             <p class="article-more-link">
               <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>

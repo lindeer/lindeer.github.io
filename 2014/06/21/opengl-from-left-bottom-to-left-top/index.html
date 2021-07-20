@@ -8,6 +8,8 @@
   <meta name="google-site-verification" content="Y4JMRnqHS3G-72frpbYsKUnwPDp2XMHgg_Of5sghvjI" />
   
   
+    <link rel="icon" href="/favicon.ico">
+  
   
 <link rel="stylesheet" href="/css/style.css">
 
@@ -26,7 +28,11 @@
 <meta property="article:published_time" content="2014-06-21T03:42:22.000Z">
 <meta property="article:modified_time" content="2021-05-11T05:31:19.932Z">
 <meta property="article:author" content="glWesley">
-<meta name="twitter:card" content="summary"><meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="twitter:card" content="summary"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div id="wrapper">
@@ -86,7 +92,8 @@
         
           <p>想当然的写成<code>gluOrtho2D(0, width, height, 0);</code> 但这是不对的。验证的方法是，只要画四条直线, width, height分别是窗口宽高：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">glBegin(GL_LINE_LOOP);</span><br><span class="line">    glColor3ub(<span class="number">0xFF</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(width, <span class="number">0</span>);</span><br><span class="line">    glVertex2i(width, height);</span><br><span class="line">    glVertex2i(<span class="number">0</span>, height);</span><br><span class="line">glEnd();</span><br></pre></td></tr></table></figure>
-<p>应该只有左上两条直线能显示才对。但结果是右下两条显示了出来,把width+1, 则右边线条去掉了，所以整体的显示结果是向期望的向左上偏移了一个像素。<br>调整成这样才是正确的：</p>
+<p>应该只有左上两条直线能显示才对。但结果是右下两条显示了出来,把width+1, 则右边线条去掉了，所以整体的显示结果是向期望的向左上偏移了一个像素。<br />
+调整成这样才是正确的：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gluOrtho2D(<span class="number">-1</span>, width - <span class="number">1</span>, height - <span class="number">1</span>, <span class="number">-1</span>);</span><br></pre></td></tr></table></figure>
 <p>显然<code>gluOrtho2D</code>对于整数的取值区间是<code>(m, n]</code>。</p>
 <p>程序在这种情况下真正做到了精确至像素，一个像素的错误（不是误差）让结果产生重大影响。真正的精确到像素只有可能是实在的数据运算而不是感觉和观察，不知设计湿看了作何想。</p>
