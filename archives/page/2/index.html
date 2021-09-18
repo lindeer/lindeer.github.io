@@ -64,6 +64,182 @@
     <div id="content">
       
   
+    <article id="post-flutter-about-channel" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/24/flutter-about-channel/">flutter: 平台层与运行层的双向通信Channel</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-24T15:27:57.000Z" itemprop="datePublished">Jun 24 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: v1.5.4-hotfix.1@stable</span><br><span class="line">engine: 52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f</span><br></pre></td></tr></table></figure>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/24/flutter-about-channel/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-flutter-wrong-full-snapshot-version" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/22/flutter-wrong-full-snapshot-version/">flutter: 彻底解决Wrong full snapshot version问题</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-22T10:03:53.000Z" itemprop="datePublished">Jun 22 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>环境: flutter-sdk(v1.5.4-hotfix.1@stable)</p>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/22/flutter-wrong-full-snapshot-version/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-android-dynamic-gradle-project-setting" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/11/android-dynamic-gradle-project-setting/">Android动态改变工程依赖</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-11T14:02:32.000Z" itemprop="datePublished">Jun 11 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>在<code>app/build.gradle</code>有如下库依赖:</p>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/11/android-dynamic-gradle-project-setting/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-recylerview-no-type-cast-viewholder" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/02/recylerview-no-type-cast-viewholder/">一劳永逸——RecyclerView无类型强转的通用ViewHolder</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-02T10:06:03.000Z" itemprop="datePublished">Jun 2 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>我们知道在一般的列表视图(recyclerView)中绑定不同类型的列表项子视图是通过各种类型的<code>ViewHolder</code>(比如<code>recyclerView.ViewHolder</code>). 不同数据对不同视图控件的操作是以实现各种ViewHolder子类的方式实现的.<br><strong>能不能只用一种类型的视图来涵盖所有的ViewHolder类型?</strong> 听起来有些不可思议, 每种ViewHolder需要绑定的控件千差万别, 怎么抽象这些控件呢? 但实际上是可以实现的.</p>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/02/recylerview-no-type-cast-viewholder/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
     <article id="post-dynamic-proxy-of-dynamic-switch" class="article article-type-post" itemprop="blogPost" itemscope>
   <div class="article-inner">
     
@@ -89,7 +265,7 @@
       
         
         
-          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br />
+          <p>名字看着有点绕, 但目的其实很简单明确: 就是想实现动态代理的对象实例, 在运行时也能够切换.<br>先理解前提条件和程序上下文, 譬如有如下接口:</p>
           
             <p class="article-more-link">
               <a href="/2019/05/22/dynamic-proxy-of-dynamic-switch/#more">read more</a>
@@ -133,7 +309,7 @@
       
         
         
-          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br />
+          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br>想法很简单：计算每个非目标child的wrap_content宽度，用父宽度减去得availableWidth，再计算目标child的宽度，如果超过就减小字体值，直至合适的字体大小值出现。<br>然而实现后实际宽度比预期少那几个像素，使得相邻的文本折行了。</p>
           
             <p class="article-more-link">
               <a href="/2018/04/28/android-text-width-trap/#more">read more</a>
@@ -177,7 +353,7 @@
       
         
         
-          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br />
+          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
           
             <p class="article-more-link">
               <a href="/2018/04/18/recyclerview-divider-by-viewtype/#more">read more</a>
@@ -221,7 +397,7 @@
       
         
         
-          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br />
+          <p><code>BackgroundColorSpan</code>可以实现文本加底色的一个效果，没有问题，然而问题是文本增加间距的时候效果会变成这样:<br><img src="http://upload-images.jianshu.io/upload_images/19161-0bb74bacf2a8bdf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br>所以我们期望达到的效果是一个只包裹文本的的背景底色。<br>研究了一下，发现必须得到文本相关的信息，才能在指定的位置填充颜色，所以无法再利用<code>BackgroundColorSpan</code>这个类了，而要用<code>ReplacementSpan</code>，于是有:</p>
           
             <p class="article-more-link">
               <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>
@@ -265,7 +441,7 @@
       
         
         
-          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br />
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
           
             <p class="article-more-link">
               <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
@@ -309,186 +485,10 @@
       
         
         
-          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的&quot;全文/收起&quot;根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
+          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
           
             <p class="article-more-link">
               <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-gesturedetector-long-click-could-not-cancel" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/06/29/gesturedetector-long-click-could-not-cancel/">GestureDetector无法取消长按</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-06-29T10:58:20.000Z" itemprop="datePublished">Jun 29 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>期望对RecyclerView中的item可以做单击, 长按, 和拖拽操作, 利用<code>OnItemTouchListener</code>可以达到一个在外部总控的目的。一般的对Item的操作都是在Item内部定义一个OnClickListener，如果Item的点击之类的操作与外部无关并且Item内部状态各不相同， 那这样做是最好的，但如果需要和外部关联并且这些操作不会对个别的Item另作处理，这样做就有些不足，通常这样的操作是各个Item持有同一个操作实例， 这就是所谓“外部总控”。</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/06/29/gesturedetector-long-click-could-not-cancel/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-notes-about-c11" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/06/14/notes-about-c11/">C++11笔记</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-06-14T02:49:55.000Z" itemprop="datePublished">Jun 14 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <h1 id="友元类是模板类的声明"><a class="markdownIt-Anchor" href="#友元类是模板类的声明"></a> 友元类是模板类的声明</h1>
-          
-            <p class="article-more-link">
-              <a href="/2017/06/14/notes-about-c11/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-books-of-cet6" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/05/12/books-of-cet6/">适合阅读的英语原著(六级)</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-05-12T09:03:21.000Z" itemprop="datePublished">May 12 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>针对大学英语六级的英语泛读，同样是扇贝的书目见四级<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/23a1a98e54b0">清单</a></p>
-          
-            <p class="article-more-link">
-              <a href="/2017/05/12/books-of-cet6/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-books-of-cet4" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/05/12/books-of-cet4/">适合阅读的英语原著(四级)</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-05-12T09:00:31.000Z" itemprop="datePublished">May 12 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>从扇贝上的难度分类中搜集的书单，同时自己做一个备忘，可以继续补充。<br />
-          
-            <p class="article-more-link">
-              <a href="/2017/05/12/books-of-cet4/#more">read more</a>
             </p>
           
         
