@@ -64,6 +64,94 @@
     <div id="content">
       
   
+    <article id="post-flutter-channel-sender" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/30/flutter-channel-sender/">flutter: 深入通信-发送端</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-30T02:06:17.000Z" itemprop="datePublished">Jun 30 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/30/flutter-channel-sender/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-shit-life-as-code-monkey" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/06/27/shit-life-as-code-monkey/">臭狗屎堆里的码畜人生</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-06-27T06:19:01.000Z" itemprop="datePublished">Jun 27 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>一个文案不对也要提个bug，提提提，提你妈了个逼的，全是因为针对开发的傻逼标准：bug率。这种错误有什么关系？！说一下一改不就完了么，明知bug率是标准提什么提，互相为难很有意思？我现在就把这个没写“距您”的文案带到线上我看pv能降个多少！</p>
+          
+            <p class="article-more-link">
+              <a href="/2019/06/27/shit-life-as-code-monkey/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
     <article id="post-flutter-about-channel" class="article article-type-post" itemprop="blogPost" itemscope>
   <div class="article-inner">
     
@@ -401,94 +489,6 @@
           
             <p class="article-more-link">
               <a href="/2017/12/22/backgroundcolorspan-wrap-text-only/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-reuse-layoutmanager" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/11/10/reuse-layoutmanager/">重用LayoutManager</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-11-10T11:32:23.000Z" itemprop="datePublished">Nov 10 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-textview-multiple-line-ellipsize" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2017/11/07/textview-multiple-line-ellipsize/">TextView多行文本Ellipsize的终极解决方案</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2017-11-07T01:24:41.000Z" itemprop="datePublished">Nov 7 2017</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>Android的TextView提供了ellipse的功能，就是在文本超过指定行数maxLine后增加<code>...</code>，然而当<code>setText</code>传入是spannable类型的时候，这个功能无法生效。spannable中会包含不少信息，图片，下划线等等，给解决这个问题又增加了不少难度。微信朋友圈的”全文/收起”根本没加<code>...</code>。网上有很多人试图解决这个问题，有重写类的，例如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/6763689">https://stackoverflow.com/a/6763689</a>, 有添加布局监听的，如 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/30446822%EF%BC%8C">https://stackoverflow.com/a/30446822，</a> 但实践下来没一个好用的！只好自己想法。</p>
-          
-            <p class="article-more-link">
-              <a href="/2017/11/07/textview-multiple-line-ellipsize/#more">read more</a>
             </p>
           
         
