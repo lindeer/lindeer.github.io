@@ -64,6 +64,94 @@
     <div id="content">
       
   
+    <article id="post-flutter-thread-communicate-and-message-loop" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/07/04/flutter-thread-communicate-and-message-loop/">flutter: 线程通信与消息循环(C++)</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-07-04T09:43:16.000Z" itemprop="datePublished">Jul 4 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+          
+            <p class="article-more-link">
+              <a href="/2019/07/04/flutter-thread-communicate-and-message-loop/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
+    <article id="post-flutter-channel-receiver" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2019/07/02/flutter-channel-receiver/">flutter: 深入通信-接收端</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2019-07-02T04:07:29.000Z" itemprop="datePublished">Jul 2 2019</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sdk: [v1.5.4-hotfix.1](https://github.com/flutter/flutter/commit/7a4c33425ddd78c54aba07d86f3f9a4a0051769b)@stable</span><br><span class="line">engine: [52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f](https://github.com/flutter/engine/commit/52c7a1e849a170be4b2b2fe34142ca2c0a6fea1f)</span><br></pre></td></tr></table></figure>
+          
+            <p class="article-more-link">
+              <a href="/2019/07/02/flutter-channel-receiver/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
     <article id="post-constraintlayout-example-you-may-need" class="article article-type-post" itemprop="blogPost" itemscope>
   <div class="article-inner">
     
@@ -416,99 +504,11 @@
 
 
   
-    <article id="post-android-text-width-trap" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2018/04/28/android-text-width-trap/">Android计算文本宽度的坑</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2018-04-28T03:48:31.000Z" itemprop="datePublished">Apr 28 2018</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>想实现自动缩放字体大小的功能，无论用第三方的控件还是<code>AppCompatTextView</code>都遇到一个问题：在滚动列表视图中显示有问题，在滚动过程中，明明有更大空间却用了一个小字体。没有时间细查实现，想着很简单就造个轮子。<br>想法很简单：计算每个非目标child的wrap_content宽度，用父宽度减去得availableWidth，再计算目标child的宽度，如果超过就减小字体值，直至合适的字体大小值出现。<br>然而实现后实际宽度比预期少那几个像素，使得相邻的文本折行了。</p>
-          
-            <p class="article-more-link">
-              <a href="/2018/04/28/android-text-width-trap/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-recyclerview-divider-by-viewtype" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2018/04/18/recyclerview-divider-by-viewtype/">RecyclerView区分视图类型的Divider</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2018-04-18T08:41:11.000Z" itemprop="datePublished">Apr 18 2018</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>我们都知道support库有一个DividerItemDecoration, 可以作为Item之间的分隔线(divider)。但它作用以后所有的item之间都会有这个分隔线，实际情况往往是：recyclerView中存在多种的视图类型(viewType), 我们只是需要在某一类型的视图后添加分隔线。<br>要实现这种分隔线效果并不是什么难事，既然是某一类型有这个分隔线，那在直接在这种视图的layout文件上增加如下一个bottomLine界面元素妥妥的:</p>
-          
-            <p class="article-more-link">
-              <a href="/2018/04/18/recyclerview-divider-by-viewtype/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
 
 
   <nav id="page-nav" class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
+    <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
   </nav>
 
 
