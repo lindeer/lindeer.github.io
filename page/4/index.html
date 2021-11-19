@@ -64,6 +64,50 @@
     <div id="content">
       
   
+    <article id="post-reuse-layoutmanager" class="article article-type-post" itemprop="blogPost" itemscope>
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 class="article-title" itemprop="name">
+      <a href="/2017/11/10/reuse-layoutmanager/">重用LayoutManager</a>
+      
+    </h2>
+  
+
+
+        <div class="article-meta">
+          <time class="article-date" datetime="2017-11-10T11:32:23.000Z" itemprop="datePublished">Nov 10 2017</time>
+
+          
+        </div>
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        
+          <p>在RecyclerView嵌套RecyclerView的情况中，里层RecyclerView(Secondary RecyclerView)所在的ViewHolder将会与数据进行绑定，它当然需要设置一个LayoutManager。然而在onBindViewHolder方法中创建LayoutManger实例毕竟不太好，每次调用onBindViewHolder都有实例生成容易产生内存碎片。于是每个数据Item去持有一个LayoutManger实例是自然而然的。但是问题来了：<br>如果一个数据Item已经和一个ViewHolder绑定过或者说该位置的LayoutManager已经和一个recyclerView绑定过，这时在onBindViewHolder中要和另外一个ViewHolder实例进行绑定，直接设置会有异常抛出:</p>
+          
+            <p class="article-more-link">
+              <a href="/2017/11/10/reuse-layoutmanager/#more">read more</a>
+            </p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+  </div>
+</article>
+
+
+
+  
     <article id="post-textview-multiple-line-ellipsize" class="article article-type-post" itemprop="blogPost" itemscope>
   <div class="article-inner">
     
@@ -445,50 +489,6 @@
           
             <p class="article-more-link">
               <a href="/2016/11/26/watching-fantastic-beasts-and-where-to-find-them/#more">read more</a>
-            </p>
-          
-        
-      
-    </div>
-
-    
-    
-    
-  </div>
-</article>
-
-
-
-  
-    <article id="post-my-once-bragging" class="article article-type-post" itemprop="blogPost" itemscope>
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 class="article-title" itemprop="name">
-      <a href="/2016/09/11/my-once-bragging/">记一次吹牛逼</a>
-      
-    </h2>
-  
-
-
-        <div class="article-meta">
-          <time class="article-date" datetime="2016-09-11T03:48:27.000Z" itemprop="datePublished">Sep 11 2016</time>
-
-          
-        </div>
-      </header>
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-        
-          <p>大约是08年, 暑假回家的车上遇到了一对北航小情侣. 男的长得粗犷,黑黄的皮肤, 两片肥嘴, 在我看来有点难看; 但是女孩却出人意料的漂亮, 白白净净, 恬静可爱,两腮肉嘟嘟笑起来很好看, 学生模样非常纯真. 男孩是兰州人, 女孩和我同一个地方,但高二去了兰州上学, 好像他们是参加什么竞赛认识的. 我也不知道是怎么聊起来的, 反正那天状态真是出奇的好, 兴高采烈, 谈笑风生.</p>
-          
-            <p class="article-more-link">
-              <a href="/2016/09/11/my-once-bragging/#more">read more</a>
             </p>
           
         
